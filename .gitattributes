@@ -1,0 +1,18 @@
+# Auto-detect text files and normalize to LF
+* text=auto eol=lf
+
+# Force LF for shell scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Python
+*.py text eol=lf
+*.pyi text eol=lf
+
+# Docs
+*.md text eol=lf
+*.txt text eol=lf
+
+# Don't diff binary
+*.png binary
+*.ico binary
