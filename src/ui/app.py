@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
-from PySide6.QtCore import QPoint, QSize, Qt, QTimer, Signal
+from PySide6.QtCore import QObject, QPoint, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QAction, QCloseEvent, QIcon
 from PySide6.QtWidgets import (
     QFileDialog,
@@ -116,6 +116,18 @@ class TitleBar(QFrame):
 
 
 # --- Main window ---
+class _PlayerBridge(QObject):
+    """Thread-safe bridge between MousePlayer (worker thread) and the UI.
+
+    Qt's Signal.emit() is thread-safe: when emitted from a non-UI thread,
+    the connected slot is invoked on the thread the QObject lives in
+    (the UI thread, since we create the bridge on the UI thread).
+    """
+
+    progress = Signal(int, int)  # (idx, total)
+    done = Signal()
+
+
 class MouseRecorderApp(QMainWindow):
     APP_NAME = "MouseRecorder"
 
@@ -127,7 +139,7 @@ class MouseRecorderApp(QMainWindow):
         self._setup_icon()
 
         # State
-        self._recorder = MouseRecorder(on_event=self._on_event_captured)
+        self._recorder = MouseRecorder(on_event=None)  # we update via QTimer instead
         self._player = MousePlayer()
         self._hotkey = HotkeyManager(
             on_play=self._handle_hotkey_play, on_cancel=self._handle_hotkey_cancel
@@ -135,6 +147,11 @@ class MouseRecorderApp(QMainWindow):
         self._current_recording: Optional[Recording] = None  # last captured
         self._loaded_recording: Optional[Recording] = None  # currently loaded for play
         self._updating_list = False
+
+        # Bridge for thread-safe player -> UI communication
+        self._player_bridge = _PlayerBridge()
+        self._player_bridge.progress.connect(self._on_play_progress)
+        self._player_bridge.done.connect(self._on_play_done)
 
         # Build UI
         self._build_ui()
@@ -302,10 +319,9 @@ class MouseRecorderApp(QMainWindow):
         return None
 
     # --- recorder callbacks ---
-    def _on_event_captured(self, ev: dict) -> None:
-        # Throttled UI feedback: just update the status text occasionally.
-        # We use a timer to avoid spamming the UI thread.
-        pass
+    # (No per-event callback: the periodic QTimer in _on_record_click
+    #  reads self._recorder.event_count from the UI thread, which is
+    #  thread-safe because event_count acquires the recorder's lock.)
 
     # --- button handlers ---
     def _on_record_click(self) -> None:
@@ -359,10 +375,13 @@ class MouseRecorderApp(QMainWindow):
             self._player.cancel()
             return
         self._update_state("playing", f"Reproduciendo… 0/{len(events)}")
+        # Pass signal emitters as callbacks. Signal.emit() is thread-safe
+        # and will queue the call onto the UI thread, so the connected
+        # slots (_on_play_progress / _on_play_done) run safely.
         self._player.play(
             events,
-            on_done=self._on_play_done,
-            on_progress=self._on_play_progress,
+            on_done=self._player_bridge.done.emit,
+            on_progress=self._player_bridge.progress.emit,
         )
 
     def _on_play_progress(self, idx: int, total: int) -> None:
