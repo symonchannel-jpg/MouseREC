@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="https://img.shields.io/badge/version-v0.1.5-blue" alt="Version v0.1.5"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -33,6 +34,7 @@
   - [Estructura del Proyecto](#estructura-del-proyecto)
   - [Formato de Archivo .mrcd](#formato-de-archivo-mrcd)
 - [🔧 Solución de Problemas](#-solución-de-problemas)
+- [📝 Changelog](#-changelog)
 - [🗺️ Roadmap](#️-roadmap)
 
 ---
@@ -167,6 +169,18 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 
 ## 🔧 Solución de Problemas
 
+### Errores específicos de Windows ya conocidos
+
+| Síntoma en pantalla                                      | Causa real | Solución |
+| -------------------------------------------------------- | ---------- | -------- |
+| `No se encontro Python` o ventana se cierra al toque     | El `python.exe` que Windows encuentra es el **stub de Microsoft Store** (no funciona) | Reinstala Python desde [python.org](https://www.python.org/downloads/) desmarcando "Microsoft Store" y desmarcando el stub de la Tienda. O usá la versión que detecta el .bat en `%LOCALAPPDATA%\Programs\Python\Python3XX\`. |
+| `No se esperaba ... en este momento.`                    | El `.bat` tenía `...` al final de un `echo` — `cmd` lo lee como wildcard | Ya arreglado en v0.1.3. Si reaparece, mandá el `last_run.log`. |
+| `La sintaxis del comando no es correcta.`                | El `.bat` tenía `|` al final de un `echo` — `cmd` lo lee como operador de pipe | Ya arreglado en v0.1.4. Si reaparece, mandá el `last_run.log`. |
+| Crash con código `-1073741819` al dar **Reproducir**     | El thread del player tocaba widgets de Qt directamente | Ya arreglado en v0.1.5 con `Signal.emit()`. Si reaparece, mandá el `last_run.log`. |
+| El `.bat` se abre y se cierra al toque sin ver nada       | Muchas causas posibles; siempre hay un `last_run.log` con lo que pasó | Doble clic en `diagnostico.bat` → me mandás la salida. |
+
+### Problemas generales
+
 | Problema                                      | Solución |
 | --------------------------------------------- | -------- |
 | "Python no se reconoce como comando"          | Reinstala Python tildando **"Add Python to PATH"**. O ejecutá `diagnostico.bat` para ver qué encontró. |
@@ -174,13 +188,56 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 | El `.exe` lo bloquea el antivirus             | Agregá excepción para la carpeta `dist\` |
 | No se ve el efecto glass                      | Confirmá que estés en **Windows 11** (Mica solo funciona ahí) |
 | F9 no responde                                | Algún programa está capturando F9. Cambialo en el código (`src/core/hotkey.py`) |
-| El `.bat` se abre y cierra rápido             | Ejecutá `diagnostico.bat` primero y mandame la salida. |
+| `pip install` falla                           | Sin internet, firewall bloqueando, o falta de permisos. Probá como Administrador. |
+| Ventana de cmd desaparece y no puedo leer el error | Siempre hay un `last_run.log` en la carpeta. Ábrelo con el Bloc de notas. |
+
+### ¿Cómo pedir ayuda?
+
+1. Doble clic en `diagnostico.bat` → me mandás la salida completa.
+2. Abrí `last_run.log` con el Bloc de notas → me mandás su contenido.
+3. Contame qué estabas haciendo cuando pasó el error.
+
+---
+
+## 📝 Changelog
+
+### v0.1.5 — Thread-safety con Qt Signals
+- **Fix:** Crash con código `-1073741819` al dar **Reproducir**.
+- **Causa:** El thread del player tocaba widgets de Qt directamente.
+- **Solución:** `_PlayerBridge(QObject)` con Signals que enrutan al thread UI.
+
+### v0.1.4 — Fix pipe character en .bat
+- **Fix:** `La sintaxis del comando no es correcta` al ejecutar `ejecutar.bat`.
+- **Causa:** `|` (pipe operator) al final de un `echo`.
+- **Solución:** Eliminado. Todos los `.bat` ahora son ASCII puro.
+
+### v0.1.3 — Fix wildcard en .bat
+- **Fix:** `No se esperaba ... en este momento` al ejecutar.
+- **Causa:** `...` al final de un `echo` — `cmd` lo lee como wildcard.
+- **Solución:** Reemplazados por caracteres no especiales.
+
+### v0.1.2 — Logging a archivo y wrapper
+- **Add:** `last_run.log` con cada paso timestamped.
+- **Add:** `iniciar.cmd` — wrapper que fuerza ventana abierta.
+- **Add:** `diagnostico.bat` — script de soporte.
+
+### v0.1.1 — Detección de Python real
+- **Fix:** `ejecutar.bat` se cerraba al toque.
+- **Causa:** `where python` resolvía al stub de Microsoft Store.
+- **Solución:** Búsqueda en `%LOCALAPPDATA%\Programs\Python\Python*` con prioridad por versión.
+
+### v0.1.0 — Lanzamiento inicial
+- Grabación y reproducción de mouse con timing real
+- Formato `.mrcd` (JSON)
+- UI dark glass con Mica/Acrylic en Win11
+- Atajo global F9
+- Build a `.exe` con PyInstaller
 
 ---
 
 ## 🗺️ Roadmap
 
-### v0.1.0 (inicial)
+### v0.1.0 (inicial) ✅
 - [x] Estructura del proyecto estilo CinePolys
 - [x] Captura de mouse (move, click, scroll) con timestamps
 - [x] Reproducción con timing real
@@ -190,11 +247,19 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 - [x] Build a `.exe` con PyInstaller
 - [x] `ejecutar.bat` y `compilar.bat` de doble clic
 
+### v0.1.x (estabilización del launcher) ✅
+- [x] **v0.1.1** — Detección robusta de Python (skipea el stub de Microsoft Store)
+- [x] **v0.1.2** — Logging a `last_run.log` + wrapper `iniciar.cmd` con `cmd /k`
+- [x] **v0.1.3** — Fix `No se esperaba ...` (caracteres especiales en .bat)
+- [x] **v0.1.4** — Fix `La sintaxis del comando no es correcta` (pipe operator)
+- [x] **v0.1.5** — Fix access violation `0xC0000005` con Qt Signals thread-safe
+
 ### v0.2.0 (próximo)
 - [ ] Loop / repetir N veces
 - [ ] Atajo configurable desde la UI
 - [ ] Indicador visual al reproducir (overlay sutil en pantalla)
 - [ ] Editar nombre de recordings desde la lista
+- [ ] Eliminar grabaciones desde la lista (clic derecho → eliminar)
 
 ### v0.3.0 (ideas)
 - [ ] Captura de teclado (no solo mouse)
@@ -203,9 +268,9 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 - [ ] Tema claro opcional
 
 ### Seguridad / Robustez
-- [ ] Cancelar reproducción con ESC desde cualquier ventana
-- [ ] Validación de JSON al cargar `.mrcd`
-- [ ] Manejo de coordenadas fuera de pantalla
+- [x] Cancelar reproducción con ESC desde cualquier ventana (v0.1.0)
+- [x] Validación de JSON al cargar `.mrcd` (v0.1.0)
+- [ ] Manejo de coordenadas fuera de pantalla (clamp a límites del monitor)
 
 ---
 
