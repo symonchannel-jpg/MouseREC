@@ -80,6 +80,7 @@ Automatizar acciones repetitivas del mouse sin necesidad de software complejo. I
 2. **Doble clic en `ejecutar.bat`**
    - La primera vez crea el entorno virtual e instala las dependencias (tarda 1-2 minutos).
    - Las siguientes veces abre la app directamente.
+   - Si algo falla, el `.bat` te avisa en pantalla y se queda pausado para que veas el error.
 
 3. **Listo.** La ventana de MouseRecorder se abre.
 
@@ -123,7 +124,7 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 ├── main.py                 # Punto de entrada
 ├── ejecutar.bat            # Doble clic → prepara venv y abre la app
 ├── compilar.bat            # Doble clic → genera MouseRecorder.exe
-├── requirements.txt
+├── diagnostico.bat         # Doble clic → muestra info de Python/venv/paquetes
 ├── assets/
 │   ├── icon.ico            # Icono de la app
 │   └── banner.png          # Banner del README
@@ -168,11 +169,12 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 
 | Problema                                      | Solución |
 | --------------------------------------------- | -------- |
-| "Python no se reconoce como comando"          | Reinstala Python tildando **"Add Python to PATH"** |
+| "Python no se reconoce como comando"          | Reinstala Python tildando **"Add Python to PATH"**. O ejecutá `diagnostico.bat` para ver qué encontró. |
 | La app no detecta clicks                      | Probá ejecutarla como **Administrador** (clic derecho en `ejecutar.bat` → "Ejecutar como administrador") |
 | El `.exe` lo bloquea el antivirus             | Agregá excepción para la carpeta `dist\` |
 | No se ve el efecto glass                      | Confirmá que estés en **Windows 11** (Mica solo funciona ahí) |
 | F9 no responde                                | Algún programa está capturando F9. Cambialo en el código (`src/core/hotkey.py`) |
+| El `.bat` se abre y cierra rápido             | Ejecutá `diagnostico.bat` primero y mandame la salida. |
 
 ---
 
