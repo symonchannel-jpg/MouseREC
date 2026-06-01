@@ -11,7 +11,7 @@ call :log "Working dir: %CD%"
 
 echo.
 echo ===========================================
-echo    MouseRecorder - Iniciando|
+echo    MouseRecorder - Iniciando
 echo ===========================================
 echo.
 echo Si esta ventana se cierra sola, mandame el archivo:
@@ -61,8 +61,8 @@ echo.
 
 REM --- Crear venv si no existe ---
 if not exist ".venv\Scripts\python.exe" (
-    echo [INFO] Creando entorno virtual (primera vez, ~30 segundos)|
-    call :log "Creating venv|"
+    echo [INFO] Creando entorno virtual (primera vez, ~30 segundos)
+    call :log "Creating venv"
     "!PYEXE!" -m venv .venv > "%LOG%.tmp" 2>&1
     if errorlevel 1 (
         type "%LOG%.tmp" >> "%LOG%"
@@ -84,9 +84,9 @@ if not exist ".venv\Scripts\python.exe" (
 REM --- Instalar dependencias si faltan ---
 ".venv\Scripts\python.exe" -c "import PySide6, pynput" >nul 2>&1
 if errorlevel 1 (
-    echo [INFO] Instalando dependencias (primera vez, 1-3 minutos)|
+    echo [INFO] Instalando dependencias (primera vez, 1-3 minutos)
     echo         Esto puede tardar. Paciencia.
-    call :log "Installing dependencies (pip install -r requirements.txt)|"
+    call :log "Installing dependencies (pip install -r requirements.txt)"
     ".venv\Scripts\python.exe" -m pip install --upgrade pip > "%LOG%.pip" 2>&1
     if errorlevel 1 (
         call :log "[ERROR] pip upgrade failed"
@@ -115,7 +115,7 @@ if errorlevel 1 (
 )
 
 REM --- Lanzar la app ---
-echo [INFO] Iniciando MouseRecorder|
+echo [INFO] Iniciando MouseRecorder
 call :log "Launching app: .venv\Scripts\python.exe main.py"
 echo.
 ".venv\Scripts\python.exe" main.py > "%LOG%.app" 2>&1

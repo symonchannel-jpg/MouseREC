@@ -48,8 +48,8 @@ for /f "delims=" %%V in ('"!PYEXE!" --version 2^>^&1') do (
 echo.
 
 if not exist ".venv\Scripts\python.exe" (
-    echo [INFO] Creando entorno virtual|
-    call :log "Creating venv|"
+    echo [INFO] Creando entorno virtual
+    call :log "Creating venv"
     "!PYEXE!" -m venv .venv > "%LOG%.tmp" 2>&1
     if errorlevel 1 (
         type "%LOG%.tmp" >> "%LOG%"
@@ -67,8 +67,8 @@ if not exist ".venv\Scripts\python.exe" (
 
 ".venv\Scripts\python.exe" -c "import PySide6, pynput, PyInstaller" >nul 2>&1
 if errorlevel 1 (
-    echo [INFO] Instalando dependencias|
-    call :log "Installing deps|"
+    echo [INFO] Instalando dependencias
+    call :log "Installing deps"
     ".venv\Scripts\python.exe" -m pip install --upgrade pip > "%LOG%.pip" 2>&1
     if errorlevel 1 goto :pip_failed
     ".venv\Scripts\python.exe" -m pip install -r requirements.txt > "%LOG%.pip" 2>&1
@@ -77,9 +77,9 @@ if errorlevel 1 (
     call :log "Deps installed"
 )
 
-echo [INFO] Compilando MouseRecorder.exe (puede tardar 1-3 minutos)|
+echo [INFO] Compilando MouseRecorder.exe (puede tardar 1-3 minutos)
 echo.
-call :log "Running PyInstaller|"
+call :log "Running PyInstaller"
 ".venv\Scripts\python.exe" -m PyInstaller ^
     --noconfirm ^
     --onefile ^

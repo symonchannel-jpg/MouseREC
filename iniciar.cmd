@@ -1,8 +1,9 @@
 @echo off
 REM =============================================================
-REM  iniciar.cmd - abre ejecutar.bat en una consola NUEVA
-REM  que queda abierta pase lo que pase.
+REM  iniciar.cmd - ejecuta la app con doble clic
 REM
-REM  Si ejecutar.bat se te cierra solo, usa este archivo.
+REM  La ventana queda abierta porque ejecutar.bat
+REM  termina con un 'pause'.
 REM =============================================================
-cmd /k ejecutar.bat
+cd /d "%~dp0"
+call "%~dp0ejecutar.bat"
