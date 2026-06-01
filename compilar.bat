@@ -8,44 +8,32 @@ echo    MouseRecorder - Compilando .exe
 echo ===========================================
 echo.
 
-REM --- Buscar Python en PATH y en rutas comunes ---
+REM --- Buscar Python real (skipea el stub de Microsoft Store) ---
 set "PYEXE="
-where py >nul 2>&1
-if not errorlevel 1 set "PYEXE=py -3"
-if "!PYEXE!"=="" (
-    where python >nul 2>&1
-    if not errorlevel 1 set "PYEXE=python"
-)
-if "!PYEXE!"=="" (
+for %%V in (313 312 311 310 39) do (
     for %%P in (
-        "%LOCALAPPDATA%\Programs\Python\Python311\python.exe"
-        "%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
-        "%LOCALAPPDATA%\Programs\Python\Python313\python.exe"
-        "C:\Python311\python.exe"
-        "C:\Python312\python.exe"
-        "C:\Python313\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python311\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python312\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python313\python.exe"
+        "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
+        "%USERPROFILE%\AppData\Local\Programs\Python\Python%%V\python.exe"
+        "C:\Python%%V\python.exe"
+        "C:\Program Files\Python%%V\python.exe"
     ) do (
-        if exist %%P (
-            set "PYEXE=%%~P"
-            goto :py_found
-        )
+        if exist %%P if not defined PYEXE set "PYEXE=%%~P"
     )
 )
-
-:py_found
 if "!PYEXE!"=="" (
-    echo [ERROR] No se encontro Python.
+    where py >nul 2>&1
+    if not errorlevel 1 set "PYEXE=py -3"
+)
+if "!PYEXE!"=="" (
+    echo [ERROR] No se encontro Python real.
     echo Instala Python 3.11 o superior desde https://www.python.org/downloads/
     echo (tildando "Add Python to PATH" durante la instalacion).
-    echo.
     pause
     exit /b 1
 )
 
 echo [OK] Python: !PYEXE!
+for /f "delims=" %%V in ('"!PYEXE!" --version 2^>^&1') do echo        %%V
 echo.
 
 REM --- Crear venv si no existe ---
@@ -107,7 +95,7 @@ echo ===========================================
 echo.
 echo Revisa los mensajes anteriores. Causas comunes:
 echo  - Antivirus bloqueando PyInstaller
-echo  - Permisos insuficientes (proba ejecutar como Administrador)
+echo  - Permisos insuficientes (proba como Administrador)
 echo  - Falta de espacio en disco
 echo.
 pause

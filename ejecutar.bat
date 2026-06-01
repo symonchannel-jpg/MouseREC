@@ -8,53 +8,57 @@ echo    MouseRecorder - Iniciando...
 echo ===========================================
 echo.
 
-REM --- Buscar Python en PATH y en rutas comunes ---
+REM --- Buscar Python real (skipea el stub de Microsoft Store) ---
 set "PYEXE="
-where py >nul 2>&1
-if not errorlevel 1 set "PYEXE=py -3"
-if "!PYEXE!"=="" (
-    where python >nul 2>&1
-    if not errorlevel 1 set "PYEXE=python"
-)
-
-REM Si no se encontro en PATH, buscar en rutas comunes de Windows
-if "!PYEXE!"=="" (
+for %%V in (313 312 311 310 39) do (
     for %%P in (
-        "%LOCALAPPDATA%\Programs\Python\Python311\python.exe"
-        "%LOCALAPPDATA%\Programs\Python\Python312\python.exe"
-        "%LOCALAPPDATA%\Programs\Python\Python313\python.exe"
-        "C:\Python311\python.exe"
-        "C:\Python312\python.exe"
-        "C:\Python313\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python311\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python312\python.exe"
-        "%USERPROFILE%\AppData\Local\Programs\Python\Python313\python.exe"
+        "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
+        "%USERPROFILE%\AppData\Local\Programs\Python\Python%%V\python.exe"
+        "C:\Python%%V\python.exe"
+        "C:\Program Files\Python%%V\python.exe"
     ) do (
-        if exist %%P (
-            set "PYEXE=%%~P"
-            goto :py_found
-        )
+        if exist %%P if not defined PYEXE set "PYEXE=%%~P"
     )
 )
-
-:py_found
+REM Fallback: usar 'py' (Python Launcher) si existe
 if "!PYEXE!"=="" (
-    echo [ERROR] No se encontro Python en el sistema.
+    where py >nul 2>&1
+    if not errorlevel 1 set "PYEXE=py -3"
+)
+
+if "!PYEXE!"=="" (
+    echo [ERROR] No se encontro Python real en el sistema.
+    echo.
+    echo Windows encontro solo el "stub" de Microsoft Store, que no sirve.
     echo.
     echo Pasos para solucionarlo:
     echo   1. Instala Python 3.11 o superior desde:
     echo      https://www.python.org/downloads/
     echo.
     echo   2. MUY IMPORTANTE: en la primera pantalla del instalador,
-    echo      tilda la casilla "Add Python to PATH" antes de continuar.
+    echo      tilda "Add Python to PATH" antes de continuar.
     echo.
-    echo   3. Reinstala si ya lo tenias y te olvidaste de ese paso.
+    echo   3. Si ya tenias Python pero solo aparece el stub,
+    echo      desinstala el "Python 3.x" de Microsoft Store:
+    echo      Configuracion -^> Aplicaciones -^> Python 3.x -^> Desinstalar
     echo.
     pause
     exit /b 1
 )
 
+REM Verificar que el Python elegido realmente funciona
+"!PYEXE!" --version >nul 2>&1
+if errorlevel 1 (
+    echo [ERROR] El Python encontrado no responde:
+    echo   !PYEXE!
+    echo.
+    echo Proba reinstalar Python desde python.org
+    pause
+    exit /b 1
+)
+
 echo [OK] Python: !PYEXE!
+for /f "delims=" %%V in ('"!PYEXE!" --version 2^>^&1') do echo        %%V
 echo.
 
 REM --- Crear venv si no existe ---
@@ -64,10 +68,8 @@ if not exist ".venv\Scripts\python.exe" (
     if errorlevel 1 (
         echo.
         echo [ERROR] No se pudo crear el entorno virtual.
-        echo.
         echo Si tu usuario no tiene permisos para escribir en esta carpeta,
-        echo proba ejecutar este .bat como Administrador (clic derecho -^
-        " Ejecutar como administrador).
+        echo proba ejecutar este .bat como Administrador.
         echo.
         pause
         exit /b 1
@@ -108,6 +110,8 @@ if not "!RC!"=="0" (
     echo.
     echo Proba ejecutar como Administrador.
     echo.
+    echo Si necesitas ayuda, ejecuta diagnostico.bat primero.
+    echo.
 )
 
 echo.
@@ -124,7 +128,7 @@ echo   - Sin conexion a internet
 echo   - Firewall o proxy bloqueando pip
 echo   - Permisos insuficientes
 echo.
-echo Proba ejecutar como Administrador o revis tu conexion.
+echo Proba ejecutar como Administrador o revisa tu conexion.
 echo.
 pause
 endlocal & exit /b 1
