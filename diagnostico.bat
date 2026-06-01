@@ -13,7 +13,7 @@ where py 2>nul
 where python 2>nul
 echo.
 
-echo --- Python REAL instalado (sin contar el stub de Microsoft Store) ---
+echo --- Python REAL instalado ---
 set "FOUND_PY="
 for %%V in (313 312 311 310 39) do (
     for %%P in (
@@ -33,7 +33,6 @@ echo.
 echo --- Python que va a usar ejecutar.bat ---
 if defined FOUND_PY (
     echo   !FOUND_PY!
-    echo.
     echo   Probando:
     "!FOUND_PY!" --version 2>&1
 ) else (
@@ -62,6 +61,17 @@ if exist "assets\icon.ico"      echo   [OK] assets\icon.ico
 if exist "ejecutar.bat"         echo   [OK] ejecutar.bat
 if exist "compilar.bat"         echo   [OK] compilar.bat
 if exist "diagnostico.bat"      echo   [OK] diagnostico.bat
+echo.
+
+echo --- Ultimo log de ejecucion (last_run.log) ---
+if exist "last_run.log" (
+    echo   Existe. Contenido:
+    echo   ----------------------------------------
+    type "last_run.log"
+    echo   ----------------------------------------
+) else (
+    echo   No hay log todavia. Ejecuta ejecutar.bat primero.
+)
 echo.
 
 echo --- Test rapido de importacion (si venv existe) ---
