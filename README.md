@@ -49,7 +49,7 @@
 | 💾 **Guardar**       | Exporta la grabación como archivo `.mrcd` reusable |
 | 📂 **Cargar**        | Importa una grabación `.mrcd` desde disco |
 | ⌨️ **Atajo Global**  | F9 = reproducir última grabación desde cualquier app |
-| 🎨 **Glass Moderno** | Diseño dark con Mica/Acrylic nativo de Windows 11 |
+| 🎨 **Dark moderno** | Diseño sólido oscuro con paleta desaturada y alto contraste |
 
 ---
 
@@ -68,7 +68,7 @@ Automatizar acciones repetitivas del mouse sin necesidad de software complejo. I
 
 ### Requisitos
 
-- **Windows 11** (para Mica/Acrylic real — funciona en Win10 con translucency básica)
+- **Windows 10/11**
 - **Python 3.11 o superior** (descargar de [python.org](https://www.python.org/downloads/))
   - ⚠️ Al instalar, tildar **"Add Python to PATH"**
 
@@ -114,7 +114,7 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 | --------------- | --------------------------------- |
 | Lenguaje        | Python 3.11+                      |
 | UI              | PySide6 (Qt 6)                    |
-| Glass / Mica    | DwmSetWindowAttribute (ctypes)    |
+| Estilo / Tema | QSS oscuro sólido con paleta desaturada (#0d1117) |
 | Mouse Hooks     | pynput                            |
 | Empaquetado     | PyInstaller → `.exe` standalone   |
 | Formato datos   | JSON (`.mrcd`)                    |
@@ -134,9 +134,7 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 │   └── .gitkeep
 └── src/
     ├── ui/
-    │   ├── app.py          # Ventana principal frameless con Mica
-    │   ├── theme.py        # Paleta dark + QSS glass
-    │   └── widgets.py      # GlassCard, GlowButton
+    │   ├── app.py          # Ventana principal frameless\n    │   ├── theme.py        # Paleta oscura + QSS\n    │   └── widgets.py      # PanelCard, GlowButton, StatusPill
     ├── core/
     │   ├── recorder.py     # Captura eventos de mouse (pynput)
     │   ├── player.py       # Reproduce eventos con timing real
@@ -186,7 +184,7 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 | "Python no se reconoce como comando"          | Reinstala Python tildando **"Add Python to PATH"**. O ejecutá `diagnostico.bat` para ver qué encontró. |
 | La app no detecta clicks                      | Probá ejecutarla como **Administrador** (clic derecho en `ejecutar.bat` → "Ejecutar como administrador") |
 | El `.exe` lo bloquea el antivirus             | Agregá excepción para la carpeta `dist\` |
-| No se ve el efecto glass                      | Confirmá que estés en **Windows 11** (Mica solo funciona ahí) |
+|| Fondo blanco/gris claro en lugar de oscuro     | La versión anterior usaba Mica/Acrylic translúcido que agarraba el color del wallpaper. Actualizá a v0.1.8+ que usa fondo sólido oscuro |
 | F9 no responde                                | Algún programa está capturando F9. Cambialo en el código (`src/core/hotkey.py`) |
 | `pip install` falla                           | Sin internet, firewall bloqueando, o falta de permisos. Probá como Administrador. |
 | Ventana de cmd desaparece y no puedo leer el error | Siempre hay un `last_run.log` en la carpeta. Ábrelo con el Bloc de notas. |

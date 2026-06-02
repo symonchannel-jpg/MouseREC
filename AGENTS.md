@@ -11,9 +11,9 @@ Desktop app for Windows 11 that records and replays mouse activity (movement, cl
 **Non-technical end user.** Everything is one-click (`ejecutar.bat` / `compilar.bat`). All UI copy is in Spanish. Never assume the user knows what Python is.
 
 ## Current status
-**v0.1.7 — stable + crash diagnostics.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
+**v0.1.8 — solid dark theme + stable.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
 
-v0.1.7 adds faulthandler + sys.excepthook instrumentation so ANY future crash captures a full stack trace to `crash_traceback.log`. Also: hotkey cancel now defers to the UI thread (like hotkey play), recorder.stop() no longer blocks the UI thread, invalid double-`#` QSS selector fixed, and `ejecutar.bat` prefers Python 3.12 over 3.13 for stability.
+v0.1.7 added faulthandler + sys.excepthook instrumentation. v0.1.8 replaces the Mica/Acrylic translucent UI with a solid dark palette (`#0d1117`) — no more "white" appearance, high contrast text, desaturated accent colors, and fully opaque surfaces.
 
 ## File format `.mrcd` (v1)
 JSON in `recordings/` folder next to the .exe (portable):
@@ -56,6 +56,7 @@ PyInstaller-aware. `sys.frozen` ⇒ use `sys.executable`'s dir for `recordings/`
 **The cardinal rule:** the player thread and the pynput listener threads must NEVER call any QWidget/QObject method directly. The bridge (`_PlayerBridge`) is the only sanctioned way to talk to the UI from those threads.
 
 **Why this matters:** violating it produces `0xC0000005` (STATUS_ACCESS_VIOLATION) at seemingly random points. This is exactly what happened in v0.1.0–v0.1.4 — see "Hard-won lessons".
+
 ## Solid dark background (no Mica/Acrylic)
 
 Since v0.1.8 the window uses a solid `#0d1117` background instead of the translucent Mica/Acrylic effect. The `WA_TranslucentBackground` flag and `DwmSetWindowAttribute` calls were removed entirely. This eliminates:
