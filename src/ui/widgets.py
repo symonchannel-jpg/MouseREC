@@ -13,11 +13,9 @@ from PySide6.QtWidgets import (
 )
 
 from src.ui.theme import (
-    GLASS_FILL,
-    GLASS_FILL_HOVER,
-    GLASS_FILL_PRESSED,
-    GLASS_BORDER,
-    GLASS_BORDER_HOVER,
+    BG_ELEVATED,
+    BG_PANEL,
+    BORDER,
     RECORD,
     RECORD_HOVER,
     PLAY,
@@ -30,11 +28,11 @@ from src.ui.theme import (
 
 
 class GlassCard(QFrame):
-    """A rounded translucent panel used as a visual container."""
+    """A rounded panel card with solid dark background."""
 
     def __init__(self, parent: QWidget | None = None) -> None:
         super().__init__(parent)
-        self.setObjectName("glassCard")
+        self.setObjectName("panelCard")
         self.setAttribute(Qt.WA_StyledBackground, True)
 
 
@@ -104,8 +102,8 @@ class StatusPill(QFrame):
 
         self._hotkey = QLabel("F9")
         self._hotkey.setStyleSheet(
-            f"color: {TEXT_MUTED}; background: rgba(255,255,255,0.06);"
-            f" border: 1px solid {GLASS_BORDER}; border-radius: 5px;"
+            f"color: {TEXT_MUTED}; background: {BG_ELEVATED};"
+            f" border: 1px solid {BORDER}; border-radius: 5px;"
             f" padding: 1px 7px; font-size: 11px; font-weight: 600;"
         )
         layout.addWidget(self._hotkey)

@@ -1,12 +1,11 @@
-"""Main application window — frameless, Mica/Acrylic, glass UI."""
+"""Main application window — frameless solid dark UI."""
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Optional
 
 from PySide6.QtCore import QObject, QPoint, QSize, Qt, QTimer, Signal
-from PySide6.QtGui import QAction, QCloseEvent, QIcon
+from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtWidgets import (
     QFileDialog,
     QFrame,
@@ -18,7 +17,6 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QSizePolicy,
     QVBoxLayout,
     QWidget,
 )
@@ -32,36 +30,9 @@ from src.core.storage import (
     load_recording,
     save_recording,
 )
-from src.ui.theme import QSS, BG_BASE
+from src.ui.theme import QSS
 from src.ui.widgets import GlassCard, GlowButton, StatusPill
 from src.utils.paths import assets_dir, recordings_dir
-
-
-# --- Win32 Mica/Acrylic backdrop (Windows 11) ---
-def _apply_backdrop(hwnd: int, kind: int = 2) -> bool:
-    """Apply a system backdrop to the window.
-
-    kind: 0=auto, 1=none, 2=Mica, 3=Acrylic, 4=Tabbed (Mica Alt)
-    Returns True if applied, False otherwise.
-    """
-    if sys.platform != "win32":
-        return False
-    try:
-        import ctypes
-        from ctypes import wintypes
-
-        DWMWA_SYSTEMBACKDROP_TYPE = 38  # DWMWINDOWATTRIBUTE index
-        # BuildWindowsEx specific for Win11 22H2+
-        dwmapi = ctypes.WinDLL("dwmapi")
-        hr = dwmapi.DwmSetWindowAttribute(
-            wintypes.HWND(hwnd),
-            wintypes.DWORD(DWMWA_SYSTEMBACKDROP_TYPE),
-            ctypes.byref(wintypes.DWORD(kind)),
-            ctypes.sizeof(wintypes.DWORD),
-        )
-        return hr == 0
-    except Exception:
-        return False
 
 
 # --- Custom title bar ---
@@ -158,9 +129,6 @@ class MouseRecorderApp(QMainWindow):
         self._refresh_recordings_list()
         self._update_state("idle", "Listo")
 
-        # Defer Mica attempt until the window is shown
-        QTimer.singleShot(0, self._apply_mica)
-
         # Start global hotkey
         if not self._hotkey.start():
             self._status_pill.set_hotkey_label("F9 (error)")
@@ -175,21 +143,11 @@ class MouseRecorderApp(QMainWindow):
             | Qt.WindowMinimizeButtonHint
             | Qt.WindowSystemMenuHint
         )
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
 
     def _setup_icon(self) -> None:
         ico = assets_dir() / "icon.ico"
         if ico.exists():
             self.setWindowIcon(QIcon(str(ico)))
-
-    def _apply_mica(self) -> None:
-        try:
-            hwnd = int(self.winId())
-            ok = _apply_backdrop(hwnd, kind=2)  # Mica
-            if not ok:
-                _apply_backdrop(hwnd, kind=3)  # Acrylic fallback
-        except Exception:
-            pass
 
     # --- UI build ---
     def _build_ui(self) -> None:

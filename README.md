@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version v0.1.7"/>
+  <img src="https://img.shields.io/badge/version-v0.1.8-blue" alt="Version v0.1.8"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -200,6 +200,16 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 ---
 
 ## 📝 Changelog
+
+### v0.1.8 — UI redesign: solid dark theme (2026-06-01)
+- **Redesign:** Eliminado el efecto Mica/Acrylic translúcido que hacía la ventana "blanca" según el wallpaper.
+- **Redesign:** Nueva paleta sólida oscura `#0d1117` (inspirada GitHub Dark) con alto contraste.
+- **Redesign:** Colores acento desaturados — azul `#58a6ff`, rojo `#da3633`, verde `#3fb950`.
+- **Removed:** `WA_TranslucentBackground`, `DwmSetWindowAttribute`, toda la lógica Mica/Acrylic.
+- **Fix:** Todos los textos tienen contraste ≥4.5:1 incluso los secundarios/muted.
+- **Fix:** `GlassCard` renombrado a `panelCard` en QSS, bordes visibles, fondos sólidos.
+- **Fix:** Botones con estados hover/pressed/disabled claramente diferenciados.
+- **Fix:** StatusPill, listas, inputs, scrollbars con fondos y bordes sólidos visibles.
 
 ### v0.1.7 — Crash diagnostics + thread-safety hardening (2026-06-01)
 - **Add:** `faulthandler` + `sys.excepthook` en `main.py` — captura stack traces completos en `crash_traceback.log` ante segfaults o excepciones no manejadas.

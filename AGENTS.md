@@ -56,12 +56,14 @@ PyInstaller-aware. `sys.frozen` ⇒ use `sys.executable`'s dir for `recordings/`
 **The cardinal rule:** the player thread and the pynput listener threads must NEVER call any QWidget/QObject method directly. The bridge (`_PlayerBridge`) is the only sanctioned way to talk to the UI from those threads.
 
 **Why this matters:** violating it produces `0xC0000005` (STATUS_ACCESS_VIOLATION) at seemingly random points. This is exactly what happened in v0.1.0–v0.1.4 — see "Hard-won lessons".
+## Solid dark background (no Mica/Acrylic)
 
-## Mica/Acrylic on Windows 11
-We call `DwmSetWindowAttribute` with `DWMWA_SYSTEMBACKDROP_TYPE` (index 38):
-- 0 = auto, 1 = none, 2 = Mica, 3 = Acrylic, 4 = Tabbed (Mica Alt)
+Since v0.1.8 the window uses a solid `#0d1117` background instead of the translucent Mica/Acrylic effect. The `WA_TranslucentBackground` flag and `DwmSetWindowAttribute` calls were removed entirely. This eliminates:
+- The "white" appearance when the desktop wallpaper is light
+- The race condition with `winId()` deferred initialization
+- The complexity of frameless translucent window handling
 
-We use Mica (2), fall back to Acrylic (3). The call is deferred via `QTimer.singleShot(0, ...)` until the window has a real `winId()`. Function: `_apply_backdrop(hwnd, kind=2)` in `src/ui/app.py`.
+If you want to add a backdrop effect in the future, the old code is in git history at tag v0.1.6 (`_apply_backdrop` in `src/ui/app.py`).
 
 ## How to add a new event type
 1. Add parser/serializer in `src/core/storage.py` (`_validate_event`).
