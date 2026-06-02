@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.1.5-blue" alt="Version v0.1.5"/>
+  <img src="https://img.shields.io/badge/version-v0.1.7-blue" alt="Version v0.1.7"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -200,6 +200,19 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 ---
 
 ## 📝 Changelog
+
+### v0.1.7 — Crash diagnostics + thread-safety hardening (2026-06-01)
+- **Add:** `faulthandler` + `sys.excepthook` en `main.py` — captura stack traces completos en `crash_traceback.log` ante segfaults o excepciones no manejadas.
+- **Fix:** `_handle_hotkey_cancel` ahora deferido al UI thread via `QTimer.singleShot(0, ...)`, igual que `_handle_hotkey_play` — elimina race condition potencial con el thread de pynput.
+- **Fix:** `recorder.stop()` ya no bloquea el UI thread — detiene el listener de pynput en un daemon thread separado.
+- **Fix:** Selector inválido `#titleBtn#close` (ID duplicado en QSS) reemplazado por property selector `[class="close"]`.
+- **Fix:** Se eliminó `setStyleSheet()` redundante en `_btn_load` que podía confundir al parser de QSS.
+- **Fix:** `ejecutar.bat` ahora prefiere Python 3.12 sobre 3.13 por estabilidad probada con PySide6.
+- **Add:** `crash_traceback.log` en `.gitignore` (cubierto por `*.log`).
+
+### v0.1.6 — Hard-won lessons documentation
+- **Docs:** Documentación de los 7 errores más costosos en `AGENTS.md` + limpieza de `README.md`.
+- **Note:** Sin cambios de código. Crashes existentes desde v0.1.5 (solo se documentaron).
 
 ### v0.1.5 — Thread-safety con Qt Signals
 - **Fix:** Crash con código `-1073741819` al dar **Reproducir**.

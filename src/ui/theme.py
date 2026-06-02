@@ -89,7 +89,7 @@ QFrame#titleBar QPushButton#titleBtn:hover {{
     background: {GLASS_FILL_HOVER};
     color: {TEXT_PRIMARY};
 }}
-QFrame#titleBar QPushButton#titleBtn#close:hover {{
+QFrame#titleBar QPushButton#titleBtn[class="close"]:hover {{
     background: {RECORD};
     color: white;
 }}

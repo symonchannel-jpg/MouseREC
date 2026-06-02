@@ -20,7 +20,7 @@ echo.
 
 REM --- Buscar Python real (skipea el stub de Microsoft Store) ---
 set "PYEXE="
-for %%V in (313 312 311 310 39) do (
+for %%V in (312 313 311 310 39) do (
     for %%P in (
         "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
         "%USERPROFILE%\AppData\Local\Programs\Python\Python%%V\python.exe"

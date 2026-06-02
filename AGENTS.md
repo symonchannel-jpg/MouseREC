@@ -11,7 +11,9 @@ Desktop app for Windows 11 that records and replays mouse activity (movement, cl
 **Non-technical end user.** Everything is one-click (`ejecutar.bat` / `compilar.bat`). All UI copy is in Spanish. Never assume the user knows what Python is.
 
 ## Current status
-**v0.1.5 — stable.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
+**v0.1.7 — stable + crash diagnostics.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
+
+v0.1.7 adds faulthandler + sys.excepthook instrumentation so ANY future crash captures a full stack trace to `crash_traceback.log`. Also: hotkey cancel now defers to the UI thread (like hotkey play), recorder.stop() no longer blocks the UI thread, invalid double-`#` QSS selector fixed, and `ejecutar.bat` prefers Python 3.12 over 3.13 for stability.
 
 ## File format `.mrcd` (v1)
 JSON in `recordings/` folder next to the .exe (portable):
@@ -98,9 +100,9 @@ To verify: `file ejecutar.bat` should say "ASCII text", not "Unicode text, UTF-8
 
 ## L3. The Microsoft Store Python stub
 
-`%LOCALAPPDATA%\Microsoft\WindowsApps\python.exe` is a stub that opens the Store (or does nothing) instead of running Python. Windows PATH often lists it **first**, so `python` resolves to the stub and breaks the script.
+`%LOCALAPPDATA%\\Microsoft\\WindowsApps\\python.exe` is a stub that opens the Store (or does nothing) instead of running Python. Windows PATH often lists it **first**, so `python` resolves to the stub and breaks the script.
 
-**Rule:** in any launcher .bat, search Python in real install paths first (`%LOCALAPPDATA%\Programs\Python\Python313\python.exe`, etc.) and skip the WindowsApps stub. Only fall back to `where python` or `py` if those searches fail.
+**Rule:** in any launcher .bat, search Python in real install paths first (`%LOCALAPPDATA%\\Programs\\Python\\Python313\\python.exe`, etc.) and skip the WindowsApps stub. Only fall back to `where python` or `py` if those searches fail.
 
 ## L4. The Windows console window closes when the .bat exits
 
@@ -131,6 +133,22 @@ The pattern is documented in `src/ui/app.py` with `_PlayerBridge`. Copy this pat
 ## L7. The `errorlevel` check after `goto` and `if`
 
 In .bat, `if errorlevel 1` means "if errorlevel >= 1". That's almost always what you want, but be aware. `set /a` with a failed parse returns `1`, which can trip unexpected branches.
+
+## L8. pynput.Listener.stop() joins the thread internally — it blocks
+
+`pynput.Listener.stop()` calls `self._thread.join()`, which blocks the caller until the listener thread exits. If called from the UI thread (e.g., `_on_stop_click` → `recorder.stop()`), **the UI freezes** for up to several hundred ms.
+
+**Rule:** Never call `Listener.stop()` synchronously from the UI thread. Delegate to a short-lived daemon thread:
+
+```python
+threading.Thread(target=lambda: recorder._listener.stop(), daemon=True).start()
+```
+
+## L9. All pynput hotkey callbacks must be deferred to the UI thread
+
+Both `pynput.keyboard.Listener.on_press` and `.on_release` callbacks run on the pynput listener thread. While simple operations (`Event.set()`, `is_alive()`) are thread-safe in Python, touching ANY Qt API, reading `self._player.is_playing`, or calling `self._player.cancel()` from the pynput thread is a race condition waiting to happen.
+
+**Rule:** ALL hotkey callbacks (both F9 and ESC) MUST use `QTimer.singleShot(0, self._handler_method)` to defer to the UI thread. The ESC cancel callback in v0.1.6 and earlier ran directly on the pynput thread — this was fixed in v0.1.7.
 
 ---
 

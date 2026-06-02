@@ -69,15 +69,27 @@ class MouseRecorder:
         self._running = True
 
     def stop(self) -> list[dict]:
-        """Stop the listener and return the captured events (relative timestamps)."""
+        """Stop the listener and return the captured events (relative timestamps).
+
+        Does NOT block the caller — the pynput listener is stopped in a
+        short-lived daemon thread so the UI thread stays responsive.
+        """
         if not self._running:
             return list(self._events)
-        if self._listener is not None:
-            self._listener.stop()
-            self._listener = None
-        self._running = False
         with self._lock:
-            return list(self._events)
+            events = list(self._events)
+        self._running = False
+        if self._listener is not None:
+            # pynput.Listener.stop() joins the thread internally — avoid
+            # blocking the caller by stopping in a short-lived daemon.
+            def _do_stop():
+                try:
+                    self._listener.stop()
+                except Exception:
+                    pass
+                self._listener = None
+            threading.Thread(target=_do_stop, daemon=True).start()
+        return events
 
     def get_events(self) -> list[dict]:
         with self._lock:

@@ -256,9 +256,6 @@ class MouseRecorderApp(QMainWindow):
 
         self._btn_load = GlowButton("📂  Cargar", role="accent")
         self._btn_load.setMinimumHeight(32)
-        self._btn_load.setStyleSheet(
-            self._btn_load.styleSheet() + "QPushButton#primary{font-size:12px; padding:6px 12px;}"
-        )
         list_header.addWidget(self._btn_load)
         list_layout.addLayout(list_header)
 
@@ -463,6 +460,11 @@ class MouseRecorderApp(QMainWindow):
         QTimer.singleShot(0, self._on_play_click)
 
     def _handle_hotkey_cancel(self) -> None:
+        # Called from pynput's thread (keyboard listener).
+        # Defer to UI thread so we never touch _player from a foreign thread.
+        QTimer.singleShot(0, self._do_hotkey_cancel)
+
+    def _do_hotkey_cancel(self) -> None:
         if self._player.is_playing:
             self._player.cancel()
 

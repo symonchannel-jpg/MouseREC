@@ -34,6 +34,9 @@ recordings/*
 # Logs
 *.log
 
+# Hermes agent plans (dev-only)
+.hermes/
+
 # Env files
 .env
 .env.local
