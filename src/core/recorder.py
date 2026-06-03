@@ -82,12 +82,17 @@ class MouseRecorder:
         if self._listener is not None:
             # pynput.Listener.stop() joins the thread internally — avoid
             # blocking the caller by stopping in a short-lived daemon.
+            # Capture listener locally so a concurrent start() can't
+            # redirect the stop() to the new listener.
+            _old = self._listener
+            self._listener = None
+
             def _do_stop():
                 try:
-                    self._listener.stop()
+                    _old.stop()
                 except Exception:
                     pass
-                self._listener = None
+
             threading.Thread(target=_do_stop, daemon=True).start()
         return events
 

@@ -66,21 +66,19 @@ class HotkeyManager:
     def _on_press(self, key) -> None:
         with self._lock:
             self._pressed.add(key)
-        if key == self._play_key:
             cb = self._on_play
-            if cb is not None:
-                try:
-                    cb()
-                except Exception:
-                    pass
+        if key == self._play_key and cb is not None:
+            try:
+                cb()
+            except Exception:
+                pass
 
     def _on_release(self, key) -> None:
         with self._lock:
             self._pressed.discard(key)
-        if key == self._cancel_key:
             cb = self._on_cancel
-            if cb is not None:
-                try:
-                    cb()
-                except Exception:
-                    pass
+        if key == self._cancel_key and cb is not None:
+            try:
+                cb()
+            except Exception:
+                pass

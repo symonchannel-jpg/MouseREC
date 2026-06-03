@@ -34,7 +34,7 @@ JSON in `recordings/` folder next to the .exe (portable):
 - **`recorder.py`** — `MouseRecorder` wraps `pynput.mouse.Listener`. Throttles move events to ~8ms. **No UI callback is invoked from the listener thread** — instead, a QTimer in the UI reads `event_count` (which is lock-protected) at 150ms intervals. This avoids the threading pitfalls documented below.
 - **`player.py`** — `MousePlayer` reads events, uses `pynput.mouse.Controller`, sleeps between offsets in 20ms chunks so cancel is responsive. Cancellable via `threading.Event`. **Calls back into UI only via Qt Signals** (passed by the UI as `Signal.emit` methods), never via direct method calls.
 - **`storage.py`** — `save_recording` / `load_recording`. JSON, indent=2, validates schema strictly (`_validate_payload` raises on bad input).
-- **`hotkey.py`** — global F9 listener via `pynput.keyboard.Listener`. Triggers a callback. The callback for F9 uses `QTimer.singleShot(0, ...)` to hop to the UI thread. The ESC callback (`_handle_hotkey_cancel`) only sets a flag, which is inherently thread-safe.
+- **`hotkey.py`** — global F9 listener via `pynput.keyboard.Listener`. Triggers a callback. The callback for F9 uses `Signal.emit()` on the UI-thread bridge to hop to the UI thread. The ESC callback (`_handle_hotkey_cancel`) only sets a flag, which is inherently thread-safe.
 
 ### `src/ui/` — Qt layer
 - **`app.py`** — `QMainWindow` with `FramelessWindowHint` + `WA_TranslucentBackground`. Custom title bar (drag region + min/close). Mica/Acrylic applied via `DwmSetWindowAttribute` (`DWMWA_SYSTEMBACKDROP_TYPE` = 2 for Mica, 3 for Acrylic fallback). **Contains `_PlayerBridge(QObject)`** — a tiny QObject with two Signals (`progress(int, int)` and `done()`) used for thread-safe worker → UI communication. Constructed on the UI thread, so its Signal emissions automatically queue slots back onto the UI thread.
@@ -50,7 +50,7 @@ PyInstaller-aware. `sys.frozen` ⇒ use `sys.executable`'s dir for `recordings/`
 | ---------------------------- | --------------------------------- | --------------------- |
 | **UI thread (main)**         | All QWidget, MouseRecorderApp methods | ✅ Yes                |
 | **pynput mouse listener**    | `pynput.mouse.Listener` (Recorder) | ❌ No — use QTimer polling |
-| **pynput keyboard listener** | `pynput.keyboard.Listener` (Hotkey) | ❌ No — use `QTimer.singleShot(0, ...)` for F9, flag-only for ESC |
+| **pynput keyboard listener** | `pynput.keyboard.Listener` (Hotkey) | ❌ No — emit a Signal on a UI-thread QObject for F9, flag-only for ESC |
 | **Player worker**            | `MousePlayer._run` (Python `threading.Thread`) | ❌ No — emit Signals, never call slots directly |
 
 **The cardinal rule:** the player thread and the pynput listener threads must NEVER call any QWidget/QObject method directly. The bridge (`_PlayerBridge`) is the only sanctioned way to talk to the UI from those threads.
@@ -151,7 +151,7 @@ threading.Thread(target=lambda: recorder._listener.stop(), daemon=True).start()
 
 Both `pynput.keyboard.Listener.on_press` and `.on_release` callbacks run on the pynput listener thread. While simple operations (`Event.set()`, `is_alive()`) are thread-safe in Python, touching ANY Qt API, reading `self._player.is_playing`, or calling `self._player.cancel()` from the pynput thread is a race condition waiting to happen.
 
-**Rule:** ALL hotkey callbacks (both F9 and ESC) MUST use `QTimer.singleShot(0, self._handler_method)` to defer to the UI thread. The ESC cancel callback in v0.1.6 and earlier ran directly on the pynput thread — this was fixed in v0.1.7.
+**Rule:** ALL hotkey callbacks (both F9 and ESC) MUST emit a Signal on a UI-thread QObject. `QTimer.singleShot(0, callable)` is NOT safe from foreign threads because it creates the QTimer on the caller's thread (no Qt event loop). Use `QObject` + `Signal.emit()` instead — `Signal.emit()` queues the slot onto the QObject's thread regardless of which thread calls it. The ESC cancel callback in v0.1.6 and earlier ran directly on the pynput thread — this was fixed in v0.1.7, but v0.1.7-0.1.8 used `QTimer.singleShot` which was also broken. v0.1.9+ uses the Signal bridge.
 
 ---
 

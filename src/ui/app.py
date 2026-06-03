@@ -88,7 +88,7 @@ class TitleBar(QFrame):
 
 # --- Main window ---
 class _PlayerBridge(QObject):
-    """Thread-safe bridge between MousePlayer (worker thread) and the UI.
+    """Thread-safe bridge between worker threads and the UI.
 
     Qt's Signal.emit() is thread-safe: when emitted from a non-UI thread,
     the connected slot is invoked on the thread the QObject lives in
@@ -97,6 +97,8 @@ class _PlayerBridge(QObject):
 
     progress = Signal(int, int)  # (idx, total)
     done = Signal()
+    hotkey_play = Signal()
+    hotkey_cancel = Signal()
 
 
 class MouseRecorderApp(QMainWindow):
@@ -119,10 +121,12 @@ class MouseRecorderApp(QMainWindow):
         self._loaded_recording: Optional[Recording] = None  # currently loaded for play
         self._updating_list = False
 
-        # Bridge for thread-safe player -> UI communication
+        # Bridge for thread-safe worker -> UI communication
         self._player_bridge = _PlayerBridge()
         self._player_bridge.progress.connect(self._on_play_progress)
         self._player_bridge.done.connect(self._on_play_done)
+        self._player_bridge.hotkey_play.connect(self._on_play_click)
+        self._player_bridge.hotkey_cancel.connect(self._do_hotkey_cancel)
 
         # Build UI
         self._build_ui()
@@ -414,13 +418,12 @@ class MouseRecorderApp(QMainWindow):
 
     # --- hotkey ---
     def _handle_hotkey_play(self) -> None:
-        # Called from pynput's thread, defer to UI thread
-        QTimer.singleShot(0, self._on_play_click)
+        # Called from pynput's thread. Signal.emit() is thread-safe and
+        # queues the slot onto the bridge's thread (the UI thread).
+        self._player_bridge.hotkey_play.emit()
 
     def _handle_hotkey_cancel(self) -> None:
-        # Called from pynput's thread (keyboard listener).
-        # Defer to UI thread so we never touch _player from a foreign thread.
-        QTimer.singleShot(0, self._do_hotkey_cancel)
+        self._player_bridge.hotkey_cancel.emit()
 
     def _do_hotkey_cancel(self) -> None:
         if self._player.is_playing:
