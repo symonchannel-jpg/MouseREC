@@ -82,21 +82,26 @@ def make_banner() -> None:
     cursor = _cursor_path(420)
     img.paste(cursor, (1040, 30), cursor)
 
-    # Title — draw in big chunks via PIL default font (no external font deps)
-    # Use a clean sans via default; we can't rely on Segoe on Linux, so default is fine
+    # Use Segoe UI on Windows, fallback to default if not available
     try:
         from PIL import ImageFont
-        title_font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 92
-        )
-        sub_font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 34
-        )
-        tag_font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf", 22
-        )
+        winfonts = "C:/Windows/Fonts"
+        title_font = ImageFont.truetype(f"{winfonts}/seguisb.ttf", 92)  # Segoe UI Semibold
+        sub_font = ImageFont.truetype(f"{winfonts}/segoeui.ttf", 34)
+        tag_font = ImageFont.truetype(f"{winfonts}/segoeuib.ttf", 22)  # Segoe UI Bold
     except OSError:
-        title_font = sub_font = tag_font = ImageFont.load_default()
+        try:
+            title_font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 92
+            )
+            sub_font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 34
+            )
+            tag_font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSansMono-Bold.ttf", 22
+            )
+        except OSError:
+            title_font = sub_font = tag_font = ImageFont.load_default()
 
     d.text(
         (80, 130),
@@ -106,15 +111,16 @@ def make_banner() -> None:
     )
     d.text(
         (84, 250),
-        "Graba, guarda y automatiza tu mouse.",
+        "Record, save and automate your mouse.",
         fill=(190, 195, 210, 255),
         font=sub_font,
     )
 
     # Tag pill
     tx, ty = 84, 340
+    tag_w = d.textlength("Windows 11  •  Python", font=tag_font)
     d.rounded_rectangle(
-        [tx, ty, tx + 230, ty + 44],
+        [tx, ty, tx + tag_w + 56, ty + 44],
         radius=22,
         fill=(124, 92, 255, 60),
         outline=(124, 92, 255, 200),
