@@ -34,7 +34,6 @@
   - [Project Structure](#project-structure)
   - [.mrcd File Format](#mrcd-file-format)
 - [🔧 Troubleshooting](#-troubleshooting)
-- [🗺️ Roadmap](#️-roadmap)
 - [📝 Changelog](#-changelog)
 
 ---
@@ -196,13 +195,8 @@ Files are stored in the `recordings\` folder next to the executable.
 
 ---
 
-## 🗺️ Roadmap
 
-| Version | Status | Highlights |
-|---------|--------|------------|
-| v0.1.0–v0.1.9 | ✅ Done | Core recording/playback, .mrcd format, dark UI, F9 hotkey, launcher .bat, thread-safe Signals |
-| **v0.2.0** | 🔜 Next | Loop/repeat N times, configurable hotkey, visual playback overlay, edit/delete recordings from list |
-| **v0.3.0** | 💡 Ideas | Keyboard capture, playback speed control, system tray icon, light theme
+
 
 ---
 
