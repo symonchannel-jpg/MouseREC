@@ -173,9 +173,9 @@ Files are stored in the `recordings\` folder next to the executable.
 
 | On-screen symptom                                      | Root cause | Fix |
 | ------------------------------------------------------ | ---------- | --- |
-| `No se encontro Python` or window closes instantly     | The `python.exe` Windows finds is the **Microsoft Store stub** (non-functional) | Reinstall Python from [python.org](https://www.python.org/downloads/) unchecking "Microsoft Store" and removing the Store stub. Or use the version the .bat finds at `%LOCALAPPDATA%\Programs\Python\Python3XX\`. |
-| `No se esperaba ... en este momento.`                  | The `.bat` had `...` at the end of an `echo` — `cmd` reads it as a wildcard | Fixed in v0.1.3. If it reappears, send the `last_run.log`. |
-| `La sintaxis del comando no es correcta.`              | The `.bat` had `|` at the end of an `echo` — `cmd` reads it as a pipe operator | Fixed in v0.1.4. If it reappears, send the `last_run.log`. |
+| `Python not found` or window closes instantly     | The `python.exe` Windows finds is the **Microsoft Store stub** (non-functional) | Reinstall Python from [python.org](https://www.python.org/downloads/) unchecking "Microsoft Store" and removing the Store stub. Or use the version the .bat finds at `%LOCALAPPDATA%\Programs\Python\Python3XX\`. |
+| `... was unexpected at this time`                  | The `.bat` had `...` at the end of an `echo` — `cmd` reads it as a wildcard | Fixed in v0.1.3. If it reappears, send the `last_run.log`. |
+| `The syntax of the command is incorrect`              | The `.bat` had `|` at the end of an `echo` — `cmd` reads it as a pipe operator | Fixed in v0.1.4. If it reappears, send the `last_run.log`. |
 | Crash with code `-1073741819` when clicking **Play**  | The player thread was touching Qt widgets directly | Fixed in v0.1.5 with `Signal.emit()`. If it reappears, send the `last_run.log`. |
 | The `.bat` opens and closes instantly with no visible output | Many possible causes; there's always a `last_run.log` with details | Double-click `diagnostico.bat` → send me the output. |
 

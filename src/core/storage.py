@@ -42,47 +42,47 @@ def sanitize_filename(name: str) -> str:
 
 def _validate_event(ev: Any) -> dict:
     if not isinstance(ev, dict):
-        raise ValueError(f"evento inválido: {ev!r}")
+        raise ValueError(f"invalid event: {ev!r}")
     t = ev.get("t")
     if not isinstance(t, int) or t < 0:
-        raise ValueError(f"timestamp inválido: {t!r}")
+        raise ValueError(f"invalid timestamp: {t!r}")
     typ = ev.get("type")
     if typ not in _VALID_TYPES:
-        raise ValueError(f"tipo de evento inválido: {typ!r}")
+        raise ValueError(f"invalid event type: {typ!r}")
     if typ == "move":
         for k in ("x", "y"):
             if not isinstance(ev.get(k), int):
-                raise ValueError(f"move requiere x/y int: {ev!r}")
+                raise ValueError(f"move requires x/y int: {ev!r}")
     elif typ == "click":
         for k in ("x", "y"):
             if not isinstance(ev.get(k), int):
-                raise ValueError(f"click requiere x/y int: {ev!r}")
+                raise ValueError(f"click requires x/y int: {ev!r}")
         btn = ev.get("button", "left")
         if btn not in _VALID_BUTTONS:
-            raise ValueError(f"button inválido: {btn!r}")
+            raise ValueError(f"invalid button: {btn!r}")
         ev = {**ev, "button": btn, "pressed": bool(ev.get("pressed", True))}
     elif typ == "scroll":
         for k in ("x", "y", "dx", "dy"):
             if not isinstance(ev.get(k), int):
-                raise ValueError(f"scroll requiere x/y/dx/dy int: {ev!r}")
+                raise ValueError(f"scroll requires x/y/dx/dy int: {ev!r}")
     return ev
 
 
 def _validate_payload(data: Any) -> dict:
     if not isinstance(data, dict):
-        raise ValueError("el archivo no es un objeto JSON")
+        raise ValueError("file is not a JSON object")
     if data.get("version") != SCHEMA_VERSION:
         raise ValueError(
-            f"versión no soportada: {data.get('version')!r} (esperado {SCHEMA_VERSION})"
+            f"unsupported version: {data.get('version')!r} (expected {SCHEMA_VERSION})"
         )
     name = data.get("name")
     if not isinstance(name, str) or not name.strip():
-        raise ValueError("falta 'name'")
+        raise ValueError("missing 'name'")
     events = data.get("events")
     if not isinstance(events, list):
-        raise ValueError("falta 'events' (lista)")
+        raise ValueError("missing 'events' (list)")
     if len(events) > 1_000_000:
-        raise ValueError("demasiados eventos (>1M), archivo sospechoso")
+        raise ValueError("too many events (>1M), suspicious file")
     return {
         "version": SCHEMA_VERSION,
         "name": name.strip()[:80],

@@ -10,10 +10,10 @@ call :log "Working dir: %CD%"
 
 echo.
 echo ===========================================
-echo    MouseRecorder - Compilando .exe
+echo    MouseRecorder - Building .exe
 echo ===========================================
 echo.
-echo Si esta ventana se cierra sola, mandame el archivo:
+echo If this window closes by itself, send me the file:
 echo   %LOG%
 echo.
 
@@ -35,7 +35,7 @@ if "!PYEXE!"=="" (
 )
 if "!PYEXE!"=="" (
     call :log "[ERROR] Python not found"
-    echo [ERROR] No se encontro Python.
+    echo [ERROR] Python not found.
     call :pause_keep
     goto :end
 )
@@ -48,26 +48,26 @@ for /f "delims=" %%V in ('"!PYEXE!" --version 2^>^&1') do (
 echo.
 
 if not exist ".venv\Scripts\python.exe" (
-    echo [INFO] Creando entorno virtual
+    echo [INFO] Creating virtual environment
     call :log "Creating venv"
     "!PYEXE!" -m venv .venv > "%LOG%.tmp" 2>&1
     if errorlevel 1 (
         type "%LOG%.tmp" >> "%LOG%"
         del "%LOG%.tmp" 2>nul
         call :log "[ERROR] venv creation failed"
-        echo [ERROR] No se pudo crear el venv. Mira el log.
+        echo [ERROR] Could not create venv. Check the log.
         call :pause_keep
         goto :end
     )
     del "%LOG%.tmp" 2>nul
     call :log "venv created"
-    echo [OK] Entorno virtual creado.
+    echo [OK] Virtual environment created.
     echo.
 )
 
 ".venv\Scripts\python.exe" -c "import PySide6, pynput, PyInstaller" >nul 2>&1
 if errorlevel 1 (
-    echo [INFO] Instalando dependencias
+    echo [INFO] Installing dependencies
     call :log "Installing deps"
     ".venv\Scripts\python.exe" -m pip install --upgrade pip > "%LOG%.pip" 2>&1
     if errorlevel 1 goto :pip_failed
@@ -77,7 +77,7 @@ if errorlevel 1 (
     call :log "Deps installed"
 )
 
-echo [INFO] Compilando MouseRecorder.exe (puede tardar 1-3 minutos)
+echo [INFO] Building MouseRecorder.exe (may take 1-3 minutes)
 echo.
 call :log "Running PyInstaller"
 ".venv\Scripts\python.exe" -m PyInstaller ^
@@ -96,17 +96,17 @@ call :log "PyInstaller OK"
 
 echo.
 echo ===========================================
-echo [OK] Compilacion exitosa.
+echo [OK] Build successful.
 echo ===========================================
 echo.
-echo El ejecutable quedo en:
+echo The executable is at:
 echo   %CD%\dist\MouseRecorder.exe
 echo.
-echo Ya podes hacer doble clic en MouseRecorder.exe
-echo o copiarlo a cualquier parte de tu PC.
+echo You can double-click MouseRecorder.exe
+echo or copy it anywhere on your PC.
 echo.
 call :log "=== Compile finished OK ==="
-echo Presiona una tecla para cerrar.
+echo Press any key to close.
 pause
 goto :end
 
@@ -115,7 +115,7 @@ type "%LOG%.pip" >> "%LOG%" 2>nul
 del "%LOG%.pip" 2>nul
 call :log "[ERROR] pip install failed"
 echo.
-echo [ERROR] Fallo pip install. Mira el log: %LOG%
+echo [ERROR] pip install failed. Check the log: %LOG%
 echo.
 pause
 goto :end
@@ -126,9 +126,9 @@ del "%LOG%.pyi" 2>nul
 call :log "[ERROR] PyInstaller failed"
 echo.
 echo ===========================================
-echo [ERROR] Fallo la compilacion.
+echo [ERROR] Build failed.
 echo ===========================================
-echo Mira el log: %LOG%
+echo Check the log: %LOG%
 echo.
 pause
 goto :end
@@ -146,7 +146,7 @@ goto :eof
 
 :pause_keep
 echo.
-echo Algo fallo. Mira el log: %LOG%
+echo Something failed. Check the log: %LOG%
 echo.
 pause
 goto :eof

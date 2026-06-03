@@ -94,7 +94,7 @@ class StatusPill(QFrame):
         )
         layout.addWidget(self._dot)
 
-        self._text = QLabel("Listo")
+        self._text = QLabel("Ready")
         self._text.setObjectName("statusText")
         layout.addWidget(self._text)
 
@@ -108,7 +108,7 @@ class StatusPill(QFrame):
         )
         layout.addWidget(self._hotkey)
 
-        self.set_state("idle", "Listo")
+        self.set_state("idle", "Ready")
 
     def set_state(self, state: str, text: str) -> None:
         """state ∈ 'idle' | 'recording' | 'playing'"""

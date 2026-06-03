@@ -131,7 +131,7 @@ class MouseRecorderApp(QMainWindow):
         # Build UI
         self._build_ui()
         self._refresh_recordings_list()
-        self._update_state("idle", "Listo")
+        self._update_state("idle", "Ready")
 
         # Start global hotkey
         if not self._hotkey.start():
@@ -184,8 +184,8 @@ class MouseRecorderApp(QMainWindow):
 
         row1 = QHBoxLayout()
         row1.setSpacing(10)
-        self._btn_record = GlowButton("🔴  Grabar Mouse", role="record")
-        self._btn_stop = GlowButton("⏹  Detener", role="stop")
+        self._btn_record = GlowButton("🔴  Record", role="record")
+        self._btn_stop = GlowButton("⏹  Stop", role="stop")
         self._btn_stop.setEnabled(False)
         row1.addWidget(self._btn_record, 1)
         row1.addWidget(self._btn_stop, 1)
@@ -193,9 +193,9 @@ class MouseRecorderApp(QMainWindow):
 
         row2 = QHBoxLayout()
         row2.setSpacing(10)
-        self._btn_play = GlowButton("▶  Reproducir", role="play")
+        self._btn_play = GlowButton("▶  Play", role="play")
         self._btn_play.setEnabled(False)
-        self._btn_save = GlowButton("💾  Guardar", role="accent")
+        self._btn_save = GlowButton("💾  Save", role="accent")
         self._btn_save.setEnabled(False)
         row2.addWidget(self._btn_play, 1)
         row2.addWidget(self._btn_save, 1)
@@ -210,13 +210,13 @@ class MouseRecorderApp(QMainWindow):
         list_layout.setSpacing(8)
 
         list_header = QHBoxLayout()
-        list_title = QLabel("Grabaciones guardadas")
+        list_title = QLabel("Saved Recordings")
         list_title.setObjectName("title")
         list_title.setStyleSheet("font-size: 13px;")
         list_header.addWidget(list_title)
         list_header.addStretch(1)
 
-        self._btn_load = GlowButton("📂  Cargar", role="accent")
+        self._btn_load = GlowButton("📂  Load", role="accent")
         self._btn_load.setMinimumHeight(32)
         list_header.addWidget(self._btn_load)
         list_layout.addLayout(list_header)
@@ -230,7 +230,7 @@ class MouseRecorderApp(QMainWindow):
         outer.addWidget(list_card, 1)
 
         # Footer
-        footer = QLabel("ESC cancela reproducción   •   F9 reproduce la última grabación")
+        footer = QLabel("ESC cancels playback   •   F9 replays last recording")
         footer.setObjectName("muted")
         footer.setAlignment(Qt.AlignCenter)
         outer.addWidget(footer)
@@ -289,7 +289,7 @@ class MouseRecorderApp(QMainWindow):
         self._current_recording = None
         self._loaded_recording = None
         self._recorder.start()
-        self._update_state("recording", f"Grabando…  {self._recorder.event_count} eventos")
+        self._update_state("recording", f"Recording…  {self._recorder.event_count} events")
 
         # Periodic status update
         self._record_timer = QTimer(self)
@@ -304,14 +304,14 @@ class MouseRecorderApp(QMainWindow):
                 self._record_timer = None
             return
         self._update_state(
-            "recording", f"Grabando…  {self._recorder.event_count} eventos"
+            "recording", f"Recording…  {self._recorder.event_count} events"
         )
 
     def _on_stop_click(self) -> None:
         if self._recorder.is_recording:
             events = self._recorder.stop()
             self._current_recording = Recording(
-                name="sin título",
+                name="untitled",
                 events=events,
                 created_at="",
             )
@@ -319,12 +319,12 @@ class MouseRecorderApp(QMainWindow):
                 self._record_timer.stop()
                 self._record_timer = None
             self._update_state(
-                "idle", f"Listo — {len(events)} eventos capturados"
+                "idle", f"Ready — {len(events)} events captured"
             )
             return
         if self._player.is_playing:
             self._player.cancel()
-            self._update_state("idle", "Cancelado")
+            self._update_state("idle", "Cancelled")
 
     def _on_play_click(self) -> None:
         events = self._active_events()
@@ -333,7 +333,7 @@ class MouseRecorderApp(QMainWindow):
         if self._player.is_playing:
             self._player.cancel()
             return
-        self._update_state("playing", f"Reproduciendo… 0/{len(events)}")
+        self._update_state("playing", f"Playing… 0/{len(events)}")
         # Pass signal emitters as callbacks. Signal.emit() is thread-safe
         # and will queue the call onto the UI thread, so the connected
         # slots (_on_play_progress / _on_play_done) run safely.
@@ -344,18 +344,18 @@ class MouseRecorderApp(QMainWindow):
         )
 
     def _on_play_progress(self, idx: int, total: int) -> None:
-        self._update_state("playing", f"Reproduciendo… {idx}/{total}")
+        self._update_state("playing", f"Playing… {idx}/{total}")
 
     def _on_play_done(self) -> None:
-        self._update_state("idle", "Reproducción terminada")
+        self._update_state("idle", "Playback finished")
 
     def _on_save_click(self) -> None:
         if self._current_recording is None:
             return
         name, ok = QInputDialog.getText(
             self,
-            "Guardar grabación",
-            "Nombre de la grabación:",
+            "Save Recording",
+            "Recording name:",
             text=self._current_recording.name or "recording",
         )
         if not ok or not name.strip():
@@ -363,7 +363,7 @@ class MouseRecorderApp(QMainWindow):
         try:
             path = save_recording(name.strip(), self._current_recording.events)
         except Exception as exc:
-            QMessageBox.critical(self, "Error al guardar", str(exc))
+            QMessageBox.critical(self, "Save error", str(exc))
             return
         self._current_recording = Recording.from_dict(
             {
@@ -375,16 +375,16 @@ class MouseRecorderApp(QMainWindow):
         )
         self._refresh_recordings_list()
         QMessageBox.information(
-            self, "Guardado", f"Grabación guardada en:\n{path}"
+            self, "Saved", f"Recording saved to:\n{path}"
         )
-        self._update_state("idle", f"Guardado: {path.stem}")
+        self._update_state("idle", f"Saved: {path.stem}")
 
     def _on_load_click(self) -> None:
         path_str, _ = QFileDialog.getOpenFileName(
             self,
-            "Cargar grabación",
+            "Load Recording",
             str(recordings_dir()),
-            "MouseRecorder (*.mrcd);;Todos los archivos (*)",
+            "MouseRecorder (*.mrcd);;All files (*)",
         )
         if not path_str:
             return
@@ -399,11 +399,11 @@ class MouseRecorderApp(QMainWindow):
         try:
             rec = load_recording(path)
         except Exception as exc:
-            QMessageBox.critical(self, "Error al cargar", f"{path.name}\n\n{exc}")
+            QMessageBox.critical(self, "Load error", f"{path.name}\n\n{exc}")
             return
         self._loaded_recording = rec
         self._current_recording = None
-        self._update_state("idle", f"Cargado: {rec.name} — {len(rec.events)} eventos")
+        self._update_state("idle", f"Loaded: {rec.name} — {len(rec.events)} events")
 
     def _refresh_recordings_list(self) -> None:
         self._updating_list = True
