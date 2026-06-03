@@ -198,45 +198,11 @@ Files are stored in the `recordings\` folder next to the executable.
 
 ## 🗺️ Roadmap
 
-### v0.1.0 (initial) ✅
-- [x] Project structure (CinePolys style)
-- [x] Mouse capture (move, click, scroll) with timestamps
-- [x] Playback with real timing
-- [x] Save/load in `.mrcd` (JSON) format
-- [x] Dark glass UI with Mica/Acrylic on Win11
-- [x] Global F9 hotkey to replay last recording
-- [x] Build to `.exe` with PyInstaller
-- [x] Double-click `ejecutar.bat` and `compilar.bat`
-
-### v0.1.x (launcher stabilization) ✅
-- [x] **v0.1.1** — Robust Python detection (skips Microsoft Store stub)
-- [x] **v0.1.2** — Logging to `last_run.log` + `iniciar.cmd` wrapper
-- [x] **v0.1.3** — Fix `No se esperaba ...` (special chars in .bat)
-- [x] **v0.1.4** — Fix `La sintaxis del comando no es correcta` (pipe operator)
-- [x] **v0.1.5** — Fix access violation `0xC0000005` with thread-safe Qt Signals
-
-### v0.1.9 (hotfixes) ✅
-- [x] **F9 hotkey fix** — `QTimer.singleShot` from pynput thread never fired; replaced with `Signal.emit()` on `_PlayerBridge`
-- [x] **Recorder race condition** — daemon thread in `stop()` could stop a new listener if `start()` was called again before it ran
-- [x] **Hotkey lock** — callback reads now protected by the existing lock
-
-### v0.2.0 (next)
-- [ ] Loop / repeat N times
-- [ ] Configurable hotkey from the UI
-- [ ] Visual playback indicator (subtle on-screen overlay)
-- [ ] Edit recording names from the list
-- [ ] Delete recordings from the list (right-click → delete)
-
-### v0.3.0 (ideas)
-- [ ] Keyboard capture (not just mouse)
-- [ ] Playback speed (0.5x, 1x, 2x)
-- [ ] Tray icon (minimize to system tray)
-- [ ] Optional light theme
-
-### Security / Robustness
-- [x] Cancel playback with ESC from any window (v0.1.0)
-- [x] JSON validation on `.mrcd` load (v0.1.0)
-- [ ] Off-screen coordinate handling (clamp to monitor bounds)
+| Version | Status | Highlights |
+|---------|--------|------------|
+| v0.1.0–v0.1.9 | ✅ Done | Core recording/playback, .mrcd format, dark UI, F9 hotkey, launcher .bat, thread-safe Signals |
+| **v0.2.0** | 🔜 Next | Loop/repeat N times, configurable hotkey, visual playback overlay, edit/delete recordings from list |
+| **v0.3.0** | 💡 Ideas | Keyboard capture, playback speed control, system tray icon, light theme
 
 ---
 
