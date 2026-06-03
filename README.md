@@ -74,10 +74,7 @@ Automate repetitive mouse actions without complex software. Ideal for:
 
 ### Steps
 
-1. **Open the project folder** in Windows Explorer:
-   ```
-   H:\OpenCode_Proyectos\2026-05\08_MouseRecorder
-   ```
+1. **Open the project folder** in Windows Explorer.
 
 2. **Double-click `ejecutar.bat`**
    - First run creates a virtual environment and installs dependencies (takes 1-2 minutes).
