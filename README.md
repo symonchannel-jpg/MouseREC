@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.1.8-blue" alt="Version v0.1.8"/>
+  <img src="https://img.shields.io/badge/version-v0.1.9--alpha-blue" alt="Version v0.1.9-alpha"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <h1 align="center">MouseRecorder — Graba y automatiza tu mouse</h1>
+  <h1 align="center">MouseRecorder — Record & automate your mouse</h1>
 </p>
 
 <p align="center">
@@ -16,140 +16,142 @@
 </p>
 
 <p align="center">
-  App de escritorio minimalista para Windows 11. Grabá los movimientos y clicks de tu mouse, guardá la grabación y reproducila con un atajo de teclado.
+  Minimalist Windows 11 desktop app. Record your mouse movements and clicks, save the recording, and replay it with a keyboard shortcut.
 </p>
 
 ---
 
-## 📑 Tabla de Contenidos
+## 📑 Table of Contents
 
-- [✨ Funciones](#-funciones)
-- [🎯 Objetivo](#-objetivo)
-- [🚀 Inicio Rápido](#-inicio-rápido)
-  - [Requisitos](#requisitos)
-  - [Pasos](#pasos)
-- [🎮 Cómo usar](#-cómo-usar)
-- [📚 Documentación](#-documentación)
-  - [Stack Técnico](#stack-técnico)
-  - [Estructura del Proyecto](#estructura-del-proyecto)
-  - [Formato de Archivo .mrcd](#formato-de-archivo-mrcd)
-- [🔧 Solución de Problemas](#-solución-de-problemas)
+- [✨ Features](#-features)
+- [🎯 Goal](#-goal)
+- [🚀 Quick Start](#-quick-start)
+  - [Requirements](#requirements)
+  - [Steps](#steps)
+- [🎮 How to Use](#-how-to-use)
+- [📚 Documentation](#-documentation)
+  - [Tech Stack](#tech-stack)
+  - [Project Structure](#project-structure)
+  - [.mrcd File Format](#mrcd-file-format)
+- [🔧 Troubleshooting](#-troubleshooting)
 - [📝 Changelog](#-changelog)
 - [🗺️ Roadmap](#️-roadmap)
 
 ---
 
-## ✨ Funciones
+## ✨ Features
 
-| Función              | Descripción |
+| Feature              | Description |
 | -------------------- | ----------- |
-| 🔴 **Grabar Mouse**  | Captura movimientos, clicks y scroll del mouse en tiempo real |
-| ⏹️ **Detener**       | Termina la grabación actual |
-| ▶️ **Reproducir**    | Reproduce la última grabación con timing exacto |
-| 💾 **Guardar**       | Exporta la grabación como archivo `.mrcd` reusable |
-| 📂 **Cargar**        | Importa una grabación `.mrcd` desde disco |
-| ⌨️ **Atajo Global**  | F9 = reproducir última grabación desde cualquier app |
-| 🎨 **Dark moderno** | Diseño sólido oscuro con paleta desaturada y alto contraste |
+| 🔴 **Record Mouse**  | Captures mouse movement, clicks, and scroll in real-time |
+| ⏹️ **Stop**          | Ends the current recording |
+| ▶️ **Playback**      | Replays the last recording with exact timing |
+| 💾 **Save**          | Exports the recording as a reusable `.mrcd` file |
+| 📂 **Load**          | Imports a `.mrcd` recording from disk |
+| ⌨️ **Global Hotkey** | F9 = replay last recording from any app |
+| 🎨 **Dark modern UI**| Solid dark design with desaturated palette and high contrast |
 
 ---
 
-## 🎯 Objetivo
+## 🎯 Goal
 
-Automatizar acciones repetitivas del mouse sin necesidad de software complejo. Ideal para:
+Automate repetitive mouse actions without complex software. Ideal for:
 
-- Tareas mecánicas en hojas de cálculo
-- Rellenar formularios
-- Repetir secuencias de clicks en aplicaciones
-- Demo de flujos de UI
+- Mechanical tasks in spreadsheets
+- Form filling
+- Repeating click sequences in apps
+- UI flow demos
 
 ---
 
-## 🚀 Inicio Rápido
+## 🚀 Quick Start
 
-### Requisitos
+### Requirements
 
 - **Windows 10/11**
-- **Python 3.11 o superior** (descargar de [python.org](https://www.python.org/downloads/))
-  - ⚠️ Al instalar, tildar **"Add Python to PATH"**
+- **Python 3.11 or higher** (download from [python.org](https://www.python.org/downloads/))
+  - ⚠️ During install, check **"Add Python to PATH"**
 
-### Pasos
+### Steps
 
-1. **Abrí la carpeta del proyecto** en el explorador de Windows:
+1. **Open the project folder** in Windows Explorer:
    ```
    H:\OpenCode_Proyectos\2026-05\08_MouseRecorder
    ```
 
-2. **Doble clic en `ejecutar.bat`**
-   - La primera vez crea el entorno virtual e instala las dependencias (tarda 1-2 minutos).
-   - Las siguientes veces abre la app directamente.
-   - Si algo falla, el `.bat` te avisa en pantalla y se queda pausado para que veas el error.
+2. **Double-click `ejecutar.bat`**
+   - First run creates a virtual environment and installs dependencies (takes 1-2 minutes).
+   - Subsequent runs launch the app directly.
+   - If something fails, the `.bat` shows an on-screen message and stays paused so you can read the error.
 
-3. **Listo.** La ventana de MouseRecorder se abre.
+3. **Done.** The MouseRecorder window opens.
 
-> Si querés generar un `.exe` portable: doble clic en `compilar.bat` → queda en `dist\MouseRecorder.exe`.
-
----
-
-## 🎮 Cómo usar
-
-| Acción                     | Cómo |
-| -------------------------- | ---- |
-| Empezar a grabar           | Clic en **🔴 Grabar** (o el botón se pone rojo) |
-| Detener grabación          | Clic en **⏹️ Detener** |
-| Reproducir última grabada  | Clic en **▶️ Reproducir** |
-| Guardar en disco           | Clic en **💾 Guardar** → escribí un nombre → Enter |
-| Cargar desde disco         | Clic en **📂 Cargar** → elegí un `.mrcd` |
-| Reproducir con teclado     | Presioná **F9** en cualquier momento |
-| Cancelar reproducción      | Presioná **ESC** |
-
-Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
+> To generate a portable `.exe`: double-click `compilar.bat` → result at `dist\MouseRecorder.exe`.
 
 ---
 
-## 📚 Documentación
+## 🎮 How to Use
 
-### Stack Técnico
+| Action                     | How |
+| -------------------------- | --- |
+| Start recording            | Click **🔴 Record** |
+| Stop recording             | Click **⏹️ Stop** |
+| Replay last recording      | Click **▶️ Play** |
+| Save to disk               | Click **💾 Save** → type a name → Enter |
+| Load from disk             | Click **📂 Load** → choose a `.mrcd` |
+| Playback with keyboard     | Press **F9** anytime |
+| Cancel playback            | Press **ESC** |
 
-| Capa            | Tecnología                        |
-| --------------- | --------------------------------- |
-| Lenguaje        | Python 3.11+                      |
-| UI              | PySide6 (Qt 6)                    |
-| Estilo / Tema | QSS oscuro sólido con paleta desaturada (#0d1117) |
-| Mouse Hooks     | pynput                            |
-| Empaquetado     | PyInstaller → `.exe` standalone   |
-| Formato datos   | JSON (`.mrcd`)                    |
+Files are stored in the `recordings\` folder next to the executable.
 
-### Estructura del Proyecto
+---
+
+## 📚 Documentation
+
+### Tech Stack
+
+| Layer          | Technology                        |
+| -------------- | --------------------------------- |
+| Language       | Python 3.11+                      |
+| UI             | PySide6 (Qt 6)                    |
+| Style / Theme  | Solid dark QSS with desaturated palette (#0d1117) |
+| Mouse Hooks    | pynput                            |
+| Packaging      | PyInstaller → standalone `.exe`   |
+| Data format    | JSON (`.mrcd`)                    |
+
+### Project Structure
 
 ```
 08_MouseRecorder/
-├── main.py                 # Punto de entrada
-├── ejecutar.bat            # Doble clic → prepara venv y abre la app
-├── compilar.bat            # Doble clic → genera MouseRecorder.exe
-├── diagnostico.bat         # Doble clic → muestra info de Python/venv/paquetes
+├── main.py                 # Entry point
+├── ejecutar.bat            # Double-click → prepares venv and launches app
+├── compilar.bat            # Double-click → builds MouseRecorder.exe
+├── diagnostico.bat         # Double-click → shows Python/venv/package info
 ├── assets/
-│   ├── icon.ico            # Icono de la app
-│   └── banner.png          # Banner del README
-├── recordings/             # Archivos .mrcd guardados
+│   ├── icon.ico            # App icon
+│   └── banner.png          # README banner
+├── recordings/             # Saved .mrcd files
 │   └── .gitkeep
 └── src/
     ├── ui/
-    │   ├── app.py          # Ventana principal frameless\n    │   ├── theme.py        # Paleta oscura + QSS\n    │   └── widgets.py      # PanelCard, GlowButton, StatusPill
+    │   ├── app.py          # Frameless main window
+    │   ├── theme.py        # Dark palette + QSS
+    │   └── widgets.py      # PanelCard, GlowButton, StatusPill
     ├── core/
-    │   ├── recorder.py     # Captura eventos de mouse (pynput)
-    │   ├── player.py       # Reproduce eventos con timing real
+    │   ├── recorder.py     # Captures mouse events (pynput)
+    │   ├── player.py       # Replays events with real timing
     │   ├── storage.py      # Save/load .mrcd
-    │   └── hotkey.py       # Listener global de F9
+    │   └── hotkey.py       # Global F9 listener
     └── utils/
-        └── paths.py        # Rutas recordings/ y assets/
+        └── paths.py        # recordings/ and assets/ paths
 ```
 
-### Formato de Archivo .mrcd
+### .mrcd File Format
 
 ```json
 {
   "version": 1,
-  "name": "mi macro",
+  "name": "my macro",
   "created_at": "2026-06-01T12:00:00",
   "events": [
     {"t": 0,   "type": "move",   "x": 100, "y": 200},
@@ -159,142 +161,153 @@ Los archivos se guardan en la carpeta `recordings\` junto al ejecutable.
 }
 ```
 
-- `t` = milisegundos desde el inicio de la grabación
-- Tipos: `move`, `click`, `scroll`
-- Editable a mano si querés ajustar el timing
+- `t` = milliseconds since recording start
+- Types: `move`, `click`, `scroll`
+- Manually editable if you need to adjust timing
 
 ---
 
-## 🔧 Solución de Problemas
+## 🔧 Troubleshooting
 
-### Errores específicos de Windows ya conocidos
+### Known Windows-specific errors
 
-| Síntoma en pantalla                                      | Causa real | Solución |
-| -------------------------------------------------------- | ---------- | -------- |
-| `No se encontro Python` o ventana se cierra al toque     | El `python.exe` que Windows encuentra es el **stub de Microsoft Store** (no funciona) | Reinstala Python desde [python.org](https://www.python.org/downloads/) desmarcando "Microsoft Store" y desmarcando el stub de la Tienda. O usá la versión que detecta el .bat en `%LOCALAPPDATA%\Programs\Python\Python3XX\`. |
-| `No se esperaba ... en este momento.`                    | El `.bat` tenía `...` al final de un `echo` — `cmd` lo lee como wildcard | Ya arreglado en v0.1.3. Si reaparece, mandá el `last_run.log`. |
-| `La sintaxis del comando no es correcta.`                | El `.bat` tenía `|` al final de un `echo` — `cmd` lo lee como operador de pipe | Ya arreglado en v0.1.4. Si reaparece, mandá el `last_run.log`. |
-| Crash con código `-1073741819` al dar **Reproducir**     | El thread del player tocaba widgets de Qt directamente | Ya arreglado en v0.1.5 con `Signal.emit()`. Si reaparece, mandá el `last_run.log`. |
-| El `.bat` se abre y se cierra al toque sin ver nada       | Muchas causas posibles; siempre hay un `last_run.log` con lo que pasó | Doble clic en `diagnostico.bat` → me mandás la salida. |
+| On-screen symptom                                      | Root cause | Fix |
+| ------------------------------------------------------ | ---------- | --- |
+| `No se encontro Python` or window closes instantly     | The `python.exe` Windows finds is the **Microsoft Store stub** (non-functional) | Reinstall Python from [python.org](https://www.python.org/downloads/) unchecking "Microsoft Store" and removing the Store stub. Or use the version the .bat finds at `%LOCALAPPDATA%\Programs\Python\Python3XX\`. |
+| `No se esperaba ... en este momento.`                  | The `.bat` had `...` at the end of an `echo` — `cmd` reads it as a wildcard | Fixed in v0.1.3. If it reappears, send the `last_run.log`. |
+| `La sintaxis del comando no es correcta.`              | The `.bat` had `|` at the end of an `echo` — `cmd` reads it as a pipe operator | Fixed in v0.1.4. If it reappears, send the `last_run.log`. |
+| Crash with code `-1073741819` when clicking **Play**  | The player thread was touching Qt widgets directly | Fixed in v0.1.5 with `Signal.emit()`. If it reappears, send the `last_run.log`. |
+| The `.bat` opens and closes instantly with no visible output | Many possible causes; there's always a `last_run.log` with details | Double-click `diagnostico.bat` → send me the output. |
 
-### Problemas generales
+### General issues
 
-| Problema                                      | Solución |
+| Problem                                       | Solution |
 | --------------------------------------------- | -------- |
-| "Python no se reconoce como comando"          | Reinstala Python tildando **"Add Python to PATH"**. O ejecutá `diagnostico.bat` para ver qué encontró. |
-| La app no detecta clicks                      | Probá ejecutarla como **Administrador** (clic derecho en `ejecutar.bat` → "Ejecutar como administrador") |
-| El `.exe` lo bloquea el antivirus             | Agregá excepción para la carpeta `dist\` |
-|| Fondo blanco/gris claro en lugar de oscuro     | La versión anterior usaba Mica/Acrylic translúcido que agarraba el color del wallpaper. Actualizá a v0.1.8+ que usa fondo sólido oscuro |
-| F9 no responde                                | Algún programa está capturando F9. Cambialo en el código (`src/core/hotkey.py`) |
-| `pip install` falla                           | Sin internet, firewall bloqueando, o falta de permisos. Probá como Administrador. |
-| Ventana de cmd desaparece y no puedo leer el error | Siempre hay un `last_run.log` en la carpeta. Ábrelo con el Bloc de notas. |
+| "Python is not recognized as a command"       | Reinstall Python checking **"Add Python to PATH"**. Or run `diagnostico.bat` to see what it found. |
+| App doesn't detect clicks                     | Try running as **Administrator** (right-click `ejecutar.bat` → "Run as administrator") |
+| Antivirus blocks the `.exe`                   | Add an exception for the `dist\` folder |
+| White/light background instead of dark        | Previous versions used translucent Mica/Acrylic that picked up the wallpaper color. Update to v0.1.8+ which uses solid dark background |
+| F9 doesn't respond                            | Some app is capturing F9. Change it in the code (`src/core/hotkey.py`) |
+| `pip install` fails                           | No internet, firewall blocking, or permission issues. Try as Administrator. |
+| Cmd window disappears, can't read error       | There's always a `last_run.log` in the folder. Open it with Notepad. |
 
-### ¿Cómo pedir ayuda?
+### How to ask for help
 
-1. Doble clic en `diagnostico.bat` → me mandás la salida completa.
-2. Abrí `last_run.log` con el Bloc de notas → me mandás su contenido.
-3. Contame qué estabas haciendo cuando pasó el error.
+1. Double-click `diagnostico.bat` → send me the full output.
+2. Open `last_run.log` with Notepad → send me its contents.
+3. Tell me what you were doing when the error occurred.
 
 ---
 
 ## 📝 Changelog
 
+### v0.1.9 — F9 hotkey fix + race condition fix (2026-06-03)
+- **Fix:** F9 hotkey now works correctly. `QTimer.singleShot(0, callback)` was creating the timer on the pynput thread (no Qt event loop), so the callback never fired. Replaced with `Signal.emit()` on `_PlayerBridge` which is thread-safe and queues the slot onto the UI thread.
+- **Fix:** Race condition in `recorder.stop()` — the daemon thread captured `self._listener` by reference, so if `start()` was called before the daemon ran, it would stop the *new* listener instead of the old one.
+- **Fix:** Hotkey callbacks now read under the lock in `hotkey.py`, consistent with `set_callbacks()`.
+- **Docs:** Updated `AGENTS.md` with the corrected threading pattern: `QTimer.singleShot` is NOT safe from foreign threads.
+
 ### v0.1.8 — UI redesign: solid dark theme (2026-06-01)
-- **Redesign:** Eliminado el efecto Mica/Acrylic translúcido que hacía la ventana "blanca" según el wallpaper.
-- **Redesign:** Nueva paleta sólida oscura `#0d1117` (inspirada GitHub Dark) con alto contraste.
-- **Redesign:** Colores acento desaturados — azul `#58a6ff`, rojo `#da3633`, verde `#3fb950`.
-- **Removed:** `WA_TranslucentBackground`, `DwmSetWindowAttribute`, toda la lógica Mica/Acrylic.
-- **Fix:** Todos los textos tienen contraste ≥4.5:1 incluso los secundarios/muted.
-- **Fix:** `GlassCard` renombrado a `panelCard` en QSS, bordes visibles, fondos sólidos.
-- **Fix:** Botones con estados hover/pressed/disabled claramente diferenciados.
-- **Fix:** StatusPill, listas, inputs, scrollbars con fondos y bordes sólidos visibles.
+- **Redesign:** Removed translucent Mica/Acrylic effect that made the window appear "white" depending on the wallpaper.
+- **Redesign:** New solid dark palette `#0d1117` (GitHub Dark inspired) with high contrast.
+- **Redesign:** Desaturated accent colors — blue `#58a6ff`, red `#da3633`, green `#3fb950`.
+- **Removed:** `WA_TranslucentBackground`, `DwmSetWindowAttribute`, all Mica/Acrylic logic.
+- **Fix:** All text has ≥4.5:1 contrast, including secondary and muted.
+- **Fix:** `GlassCard` renamed to `panelCard` in QSS, visible borders, solid backgrounds.
+- **Fix:** Buttons with clearly differentiated hover/pressed/disabled states.
+- **Fix:** StatusPill, lists, inputs, scrollbars with visible solid backgrounds and borders.
 
 ### v0.1.7 — Crash diagnostics + thread-safety hardening (2026-06-01)
-- **Add:** `faulthandler` + `sys.excepthook` en `main.py` — captura stack traces completos en `crash_traceback.log` ante segfaults o excepciones no manejadas.
-- **Fix:** `_handle_hotkey_cancel` ahora deferido al UI thread via `QTimer.singleShot(0, ...)`, igual que `_handle_hotkey_play` — elimina race condition potencial con el thread de pynput.
-- **Fix:** `recorder.stop()` ya no bloquea el UI thread — detiene el listener de pynput en un daemon thread separado.
-- **Fix:** Selector inválido `#titleBtn#close` (ID duplicado en QSS) reemplazado por property selector `[class="close"]`.
-- **Fix:** Se eliminó `setStyleSheet()` redundante en `_btn_load` que podía confundir al parser de QSS.
-- **Fix:** `ejecutar.bat` ahora prefiere Python 3.12 sobre 3.13 por estabilidad probada con PySide6.
-- **Add:** `crash_traceback.log` en `.gitignore` (cubierto por `*.log`).
+- **Add:** `faulthandler` + `sys.excepthook` in `main.py` — captures full stack traces in `crash_traceback.log` on segfaults or unhandled exceptions.
+- **Fix:** `_handle_hotkey_cancel` now deferred to the UI thread via `QTimer.singleShot(0, ...)`, same as `_handle_hotkey_play` — eliminates potential race condition with the pynput thread.
+- **Fix:** `recorder.stop()` no longer blocks the UI thread — stops the pynput listener in a separate daemon thread.
+- **Fix:** Invalid selector `#titleBtn#close` (duplicate ID in QSS) replaced with property selector `[class="close"]`.
+- **Fix:** Removed redundant `setStyleSheet()` on `_btn_load` that could confuse the QSS parser.
+- **Fix:** `ejecutar.bat` now prefers Python 3.12 over 3.13 for proven PySide6 stability.
+- **Add:** `crash_traceback.log` in `.gitignore` (covered by `*.log`).
 
 ### v0.1.6 — Hard-won lessons documentation
-- **Docs:** Documentación de los 7 errores más costosos en `AGENTS.md` + limpieza de `README.md`.
-- **Note:** Sin cambios de código. Crashes existentes desde v0.1.5 (solo se documentaron).
+- **Docs:** Documentation of the 7 most costly bugs in `AGENTS.md` + `README.md` cleanup.
+- **Note:** No code changes. Existing crashes from v0.1.5 (only documented).
 
-### v0.1.5 — Thread-safety con Qt Signals
-- **Fix:** Crash con código `-1073741819` al dar **Reproducir**.
-- **Causa:** El thread del player tocaba widgets de Qt directamente.
-- **Solución:** `_PlayerBridge(QObject)` con Signals que enrutan al thread UI.
+### v0.1.5 — Thread-safety with Qt Signals
+- **Fix:** Crash with code `-1073741819` when clicking **Play**.
+- **Root cause:** The player thread was touching Qt widgets directly.
+- **Solution:** `_PlayerBridge(QObject)` with Signals that route to the UI thread.
 
-### v0.1.4 — Fix pipe character en .bat
-- **Fix:** `La sintaxis del comando no es correcta` al ejecutar `ejecutar.bat`.
-- **Causa:** `|` (pipe operator) al final de un `echo`.
-- **Solución:** Eliminado. Todos los `.bat` ahora son ASCII puro.
+### v0.1.4 — Fix pipe character in .bat
+- **Fix:** `La sintaxis del comando no es correcta` when running `ejecutar.bat`.
+- **Root cause:** `|` (pipe operator) at the end of an `echo`.
+- **Solution:** Removed. All `.bat` files are now pure ASCII.
 
-### v0.1.3 — Fix wildcard en .bat
-- **Fix:** `No se esperaba ... en este momento` al ejecutar.
-- **Causa:** `...` al final de un `echo` — `cmd` lo lee como wildcard.
-- **Solución:** Reemplazados por caracteres no especiales.
+### v0.1.3 — Fix wildcard in .bat
+- **Fix:** `No se esperaba ... en este momento` on launch.
+- **Root cause:** `...` at the end of an `echo` — `cmd` reads it as a wildcard.
+- **Solution:** Replaced with non-special characters.
 
-### v0.1.2 — Logging a archivo y wrapper
-- **Add:** `last_run.log` con cada paso timestamped.
-- **Add:** `iniciar.cmd` — wrapper que fuerza ventana abierta.
-- **Add:** `diagnostico.bat` — script de soporte.
+### v0.1.2 — File logging and wrapper
+- **Add:** `last_run.log` with timestamped steps.
+- **Add:** `iniciar.cmd` — wrapper that forces an open window.
+- **Add:** `diagnostico.bat` — support script.
 
-### v0.1.1 — Detección de Python real
-- **Fix:** `ejecutar.bat` se cerraba al toque.
-- **Causa:** `where python` resolvía al stub de Microsoft Store.
-- **Solución:** Búsqueda en `%LOCALAPPDATA%\Programs\Python\Python*` con prioridad por versión.
+### v0.1.1 — Real Python detection
+- **Fix:** `ejecutar.bat` closed instantly.
+- **Root cause:** `where python` resolved to the Microsoft Store stub.
+- **Solution:** Search in `%LOCALAPPDATA%\Programs\Python\Python*` with version priority.
 
-### v0.1.0 — Lanzamiento inicial
-- Grabación y reproducción de mouse con timing real
-- Formato `.mrcd` (JSON)
-- UI dark glass con Mica/Acrylic en Win11
-- Atajo global F9
-- Build a `.exe` con PyInstaller
+### v0.1.0 — Initial release
+- Mouse recording and playback with real timing
+- `.mrcd` (JSON) format
+- Dark glass UI with Mica/Acrylic on Win11
+- Global F9 hotkey
+- Build to `.exe` with PyInstaller
 
 ---
 
 ## 🗺️ Roadmap
 
-### v0.1.0 (inicial) ✅
-- [x] Estructura del proyecto estilo CinePolys
-- [x] Captura de mouse (move, click, scroll) con timestamps
-- [x] Reproducción con timing real
-- [x] Save/load en formato `.mrcd` (JSON)
-- [x] UI dark glass con Mica/Acrylic en Win11
-- [x] Atajo global F9 para reproducir última grabación
-- [x] Build a `.exe` con PyInstaller
-- [x] `ejecutar.bat` y `compilar.bat` de doble clic
+### v0.1.0 (initial) ✅
+- [x] Project structure (CinePolys style)
+- [x] Mouse capture (move, click, scroll) with timestamps
+- [x] Playback with real timing
+- [x] Save/load in `.mrcd` (JSON) format
+- [x] Dark glass UI with Mica/Acrylic on Win11
+- [x] Global F9 hotkey to replay last recording
+- [x] Build to `.exe` with PyInstaller
+- [x] Double-click `ejecutar.bat` and `compilar.bat`
 
-### v0.1.x (estabilización del launcher) ✅
-- [x] **v0.1.1** — Detección robusta de Python (skipea el stub de Microsoft Store)
-- [x] **v0.1.2** — Logging a `last_run.log` + wrapper `iniciar.cmd` con `cmd /k`
-- [x] **v0.1.3** — Fix `No se esperaba ...` (caracteres especiales en .bat)
+### v0.1.x (launcher stabilization) ✅
+- [x] **v0.1.1** — Robust Python detection (skips Microsoft Store stub)
+- [x] **v0.1.2** — Logging to `last_run.log` + `iniciar.cmd` wrapper
+- [x] **v0.1.3** — Fix `No se esperaba ...` (special chars in .bat)
 - [x] **v0.1.4** — Fix `La sintaxis del comando no es correcta` (pipe operator)
-- [x] **v0.1.5** — Fix access violation `0xC0000005` con Qt Signals thread-safe
+- [x] **v0.1.5** — Fix access violation `0xC0000005` with thread-safe Qt Signals
 
-### v0.2.0 (próximo)
-- [ ] Loop / repetir N veces
-- [ ] Atajo configurable desde la UI
-- [ ] Indicador visual al reproducir (overlay sutil en pantalla)
-- [ ] Editar nombre de recordings desde la lista
-- [ ] Eliminar grabaciones desde la lista (clic derecho → eliminar)
+### v0.1.9 (hotfixes) ✅
+- [x] **F9 hotkey fix** — `QTimer.singleShot` from pynput thread never fired; replaced with `Signal.emit()` on `_PlayerBridge`
+- [x] **Recorder race condition** — daemon thread in `stop()` could stop a new listener if `start()` was called again before it ran
+- [x] **Hotkey lock** — callback reads now protected by the existing lock
+
+### v0.2.0 (next)
+- [ ] Loop / repeat N times
+- [ ] Configurable hotkey from the UI
+- [ ] Visual playback indicator (subtle on-screen overlay)
+- [ ] Edit recording names from the list
+- [ ] Delete recordings from the list (right-click → delete)
 
 ### v0.3.0 (ideas)
-- [ ] Captura de teclado (no solo mouse)
-- [ ] Velocidad de reproducción (0.5x, 1x, 2x)
-- [ ] Tray icon (minimizar a bandeja del sistema)
-- [ ] Tema claro opcional
+- [ ] Keyboard capture (not just mouse)
+- [ ] Playback speed (0.5x, 1x, 2x)
+- [ ] Tray icon (minimize to system tray)
+- [ ] Optional light theme
 
-### Seguridad / Robustez
-- [x] Cancelar reproducción con ESC desde cualquier ventana (v0.1.0)
-- [x] Validación de JSON al cargar `.mrcd` (v0.1.0)
-- [ ] Manejo de coordenadas fuera de pantalla (clamp a límites del monitor)
+### Security / Robustness
+- [x] Cancel playback with ESC from any window (v0.1.0)
+- [x] JSON validation on `.mrcd` load (v0.1.0)
+- [ ] Off-screen coordinate handling (clamp to monitor bounds)
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-MIT — ver [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

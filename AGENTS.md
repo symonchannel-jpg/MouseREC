@@ -11,9 +11,9 @@ Desktop app for Windows 11 that records and replays mouse activity (movement, cl
 **Non-technical end user.** Everything is one-click (`ejecutar.bat` / `compilar.bat`). All UI copy is in Spanish. Never assume the user knows what Python is.
 
 ## Current status
-**v0.1.8 — solid dark theme + stable.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
+**v0.1.9 — F9 hotkey fix + stable.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
 
-v0.1.7 added faulthandler + sys.excepthook instrumentation. v0.1.8 replaces the Mica/Acrylic translucent UI with a solid dark palette (`#0d1117`) — no more "white" appearance, high contrast text, desaturated accent colors, and fully opaque surfaces.
+v0.1.9 fixes a critical bug where `QTimer.singleShot(0, callback)` from the pynput keyboard listener thread never fired (the QTimer was created on the pynput thread which has no Qt event loop). All hotkey callbacks now use `Signal.emit()` on `_PlayerBridge` instead. Also fixed a race condition in `recorder.stop()` and lock protection in `hotkey.py`.
 
 ## File format `.mrcd` (v1)
 JSON in `recordings/` folder next to the .exe (portable):
@@ -37,7 +37,7 @@ JSON in `recordings/` folder next to the .exe (portable):
 - **`hotkey.py`** — global F9 listener via `pynput.keyboard.Listener`. Triggers a callback. The callback for F9 uses `Signal.emit()` on the UI-thread bridge to hop to the UI thread. The ESC callback (`_handle_hotkey_cancel`) only sets a flag, which is inherently thread-safe.
 
 ### `src/ui/` — Qt layer
-- **`app.py`** — `QMainWindow` with `FramelessWindowHint` + `WA_TranslucentBackground`. Custom title bar (drag region + min/close). Mica/Acrylic applied via `DwmSetWindowAttribute` (`DWMWA_SYSTEMBACKDROP_TYPE` = 2 for Mica, 3 for Acrylic fallback). **Contains `_PlayerBridge(QObject)`** — a tiny QObject with two Signals (`progress(int, int)` and `done()`) used for thread-safe worker → UI communication. Constructed on the UI thread, so its Signal emissions automatically queue slots back onto the UI thread.
+- **`app.py`** — `QMainWindow` with `FramelessWindowHint` + `WA_TranslucentBackground`. Custom title bar (drag region + min/close). Mica/Acrylic applied via `DwmSetWindowAttribute` (`DWMWA_SYSTEMBACKDROP_TYPE` = 2 for Mica, 3 for Acrylic fallback). **Contains `_PlayerBridge(QObject)`** — a tiny QObject with Signals (`progress(int, int)`, `done()`, `hotkey_play()`, `hotkey_cancel()`) used for thread-safe worker → UI communication. Constructed on the UI thread, so its Signal emissions automatically queue slots back onto the UI thread.
 - **`theme.py`** — `QSS` string. Palette: bg `#0d0d10`, glass `rgba(255,255,255,0.06)`, border `rgba(255,255,255,0.12)`, accent `#7c5cff`, record `#ef4444`, play `#10b981`. Font: Segoe UI Variable (with fallbacks).
 - **`widgets.py`** — `GlassCard` (QFrame with rounded corners + translucent bg), `GlowButton` (QPushButton with role-based variants: record/stop/play/accent), `StatusPill` (colored dot + text + hotkey label).
 
@@ -130,7 +130,7 @@ The pattern is documented in `src/ui/app.py` with `_PlayerBridge`. Copy this pat
 
 `pynput.mouse.Listener` and `pynput.keyboard.Listener` each spawn their own thread. Callbacks from those threads must not touch Qt widgets. For our app:
 - **Recorder:** instead of a per-event callback, a QTimer in the UI polls `MouseRecorder.event_count` (which is lock-protected). Simple and safe.
-- **Hotkey (F9):** callback uses `QTimer.singleShot(0, self._on_play_click)` to hop to the UI thread.
+- **Hotkey (F9):** callback uses `Signal.emit()` on `_PlayerBridge` to hop to the UI thread.
 - **Hotkey (ESC):** callback only sets `threading.Event` flag — no UI access needed.
 
 ## L7. The `errorlevel` check after `goto` and `if`
