@@ -11,7 +11,7 @@ Desktop app for Windows 11 that records and replays mouse activity (movement, cl
 **Non-technical end user.** Everything is one-click (`ejecutar.bat` / `compilar.bat`). All UI copy is in Spanish. Never assume the user knows what Python is.
 
 ## Current status
-**v0.1.9 — F9 hotkey fix + stable.** v0.1.0 → v0.1.5 was a marathon of debugging .bat and Qt issues. See "Hard-won lessons" below. The app works end-to-end: record → stop → save → load → play → F9 hotkey.
+**v0.1.10 — Game mode toggle + DirectInput playback (2026-06-06).** Recording works as before (pynput WH_MOUSE_LL). For games, user must run as Administrator (UIPI bypass). Playback in game mode uses `SendInput` with `dwExtraInfo=0` instead of pynput's `Controller` for clicks — this removes the `LLMHF_INJECTED` flag that DirectInput games detect and ignore. Attempted Raw Input fallback was rolled back (caused `PostQuitMessage` crash from wrong thread).
 
 v0.1.9 fixes a critical bug where `QTimer.singleShot(0, callback)` from the pynput keyboard listener thread never fired (the QTimer was created on the pynput thread which has no Qt event loop). All hotkey callbacks now use `Signal.emit()` on `_PlayerBridge` instead. Also fixed a race condition in `recorder.stop()` and lock protection in `hotkey.py`.
 
@@ -71,6 +71,21 @@ If you want to add a backdrop effect in the future, the old code is in git histo
 2. Add handler in `src/core/recorder.py` (`_on_move`, `_on_click`, `_on_scroll`).
 3. Add playback in `src/core/player.py` (`_play_event`).
 4. (If the UI needs to know per-event) add a new Signal to `_PlayerBridge` and a slot in `MouseRecorderApp`.
+
+## Game mode (v0.1.10)
+
+When the user checks "Game mode", two things happen:
+
+### Recording
+Recording is unchanged (pynput `WH_MOUSE_LL` hook). The game mode flag is passed to `MouseRecorder` but only affects future extensions. The key requirement for recording in games is **running as Administrator** — the game process is elevated (UIPI blocks hooks from non-elevated processes). No code change needed.
+
+### Playback
+`MousePlayer._play_event()` checks `self._game_mode`. When True, clicks use `_send_click_ctypes()` instead of pynput's `Controller.press()`/`Controller.release()`. This calls `SendInput` via ctypes with `dwExtraInfo = 0` (zero, not `LLMHF_INJECTED`). DirectInput games check `GetMessageExtraInfo()` and ignore events with the injected flag — setting it to 0 masquerades as a hardware event.
+
+Movement and scroll still use pynput's `Controller` in both modes because `SetCursorPos` is not flagged and works universally.
+
+### UI
+A `QCheckBox` in the status row toggles `_recorder.set_game_mode()` and `_player.set_game_mode()`. Default: off. Thread-safe to toggle anytime (just sets a bool).
 
 ## Release process
 1. Update README roadmap (mark completed v0.X.Y items as `[x]`).
@@ -163,6 +178,18 @@ Both `pynput.keyboard.Listener.on_press` and `.on_release` callbacks run on the 
 - **Mica on Windows 10**: not supported by OS. App still works, just with plain translucency.
 - **F9 conflict**: some apps (VLC, Discord) capture F9. We chose F9 as default; user can change in `src/core/hotkey.py`.
 - **PySide6 3.13 wheels**: as of early 2026, PySide6 publishes Windows wheels for Python 3.13. If a future user has a Python version that lacks wheels, pip install will fail and the user must install a different Python (3.11 or 3.12 are safe bets).
+
+## Rolled-back experiments
+
+### Raw Input mouse monitor (v0.1.10-rc)
+A `RawMouseMonitor` class was created in `src/core/rawinput.py` that used a message-only window + `RegisterRawInputDevices` to capture mouse events at the HID level, bypassing hooks and UIPI entirely. It was integrated into `MouseRecorder` as a game-mode fallback.
+
+**Why it was rolled back:**
+- `PostQuitMessage(0)` was called from the UI thread (inside `recorder.stop()`), which posted `WM_QUIT` to Qt's event loop, causing the window to close on Stop.
+- User reported the app stopped capturing events entirely after the fix — likely a subtle interaction between pynput's hook thread and the raw input message pump.
+- The real fix was simpler: run as Administrator (UIPI bypass). Removed `rawinput.py` entirely.
+
+**If you want to revive it:** the file is in git history at the commit before this note was added. Main fixes needed: (1) ensure the raw monitor thread doesn't interfere with pynput's hook, (2) never call Win32 message functions from the UI thread.
 
 # Dependencies (requirements.txt)
 - `PySide6>=6.7` — Qt 6 Python bindings

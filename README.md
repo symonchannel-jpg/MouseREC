@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.1.9--alpha-blue" alt="Version v0.1.9-alpha"/>
+  <img src="https://img.shields.io/badge/version-v0.1.10--alpha-blue" alt="Version v0.1.10-alpha"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -48,6 +48,7 @@
 | 💾 **Save**          | Exports the recording as a reusable `.mrcd` file |
 | 📂 **Load**          | Imports a `.mrcd` recording from disk |
 | ⌨️ **Global Hotkey** | F9 = replay last recording from any app |
+| 🎮 **Game Mode**      | Toggle for DirectInput games — sends clicks without injection flag |
 | 🎨 **Dark modern UI**| Solid dark design with desaturated palette and high contrast |
 
 ---
@@ -97,6 +98,9 @@ Automate repetitive mouse actions without complex software. Ideal for:
 | Load from disk             | Click **📂 Load** → choose a `.mrcd` |
 | Playback with keyboard     | Press **F9** anytime |
 | Cancel playback            | Press **ESC** |
+| Playback in games          | Check **Game mode** before playing — clicks bypass DirectInput detection |
+
+> **For games (Mu Online, etc.):** Right-click `ejecutar.bat` → **Run as administrator**. Games often run elevated and Windows blocks input hooks from non-admin apps. Check **Game mode** to ensure clicks are injected without the "virtual input" flag that games detect.
 
 Files are stored in the `recordings\` folder next to the executable.
 
@@ -180,7 +184,8 @@ Files are stored in the `recordings\` folder next to the executable.
 | Problem                                       | Solution |
 | --------------------------------------------- | -------- |
 | "Python is not recognized as a command"       | Reinstall Python checking **"Add Python to PATH"**. Or run `diagnostico.bat` to see what it found. |
-| App doesn't detect clicks                     | Try running as **Administrator** (right-click `ejecutar.bat` → "Run as administrator") |
+| App doesn't detect clicks                     | Try running as **Administrator** (right-click `ejecutar.bat` → "Run as administrator"). Games often run elevated and block hooks from non-admin apps. |
+| Clicks not working in-game during playback    | Check **Game mode** in the app. This removes the "injected" flag from clicks so DirectInput games don't ignore them. Also run as admin. |
 | Antivirus blocks the `.exe`                   | Add an exception for the `dist\` folder |
 | White/light background instead of dark        | Previous versions used translucent Mica/Acrylic that picked up the wallpaper color. Update to v0.1.8+ which uses solid dark background |
 | F9 doesn't respond                            | Some app is capturing F9. Change it in the code (`src/core/hotkey.py`) |
@@ -201,6 +206,13 @@ Files are stored in the `recordings\` folder next to the executable.
 ---
 
 ## 📝 Changelog
+
+### v0.1.10 — Game mode + DirectInput click injection (2026-06-06)
+- **Add:** "Game mode" toggle in UI — enables two behaviors for game compatibility:
+  - Recording: acknowledges admin requirement for elevated game processes (UIPI bypass). User must run the app as Administrator for games.
+  - Playback: clicks sent via `SendInput` with `dwExtraInfo=0` instead of pynput's default `LLMHF_INJECTED` flag. Games using DirectInput often detect and ignore injected clicks — this makes them look like real hardware events.
+- **Fix:** Cleaned up experimental Raw Input code that caused crashes on stop.
+- **Docs:** Added game recording/playback guide to README troubleshooting.
 
 ### v0.1.9 — F9 hotkey fix + race condition fix (2026-06-03)
 - **Fix:** F9 hotkey now works correctly. `QTimer.singleShot(0, callback)` was creating the timer on the pynput thread (no Qt event loop), so the callback never fired. Replaced with `Signal.emit()` on `_PlayerBridge` which is thread-safe and queues the slot onto the UI thread.

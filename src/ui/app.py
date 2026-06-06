@@ -7,6 +7,7 @@ from typing import Optional
 from PySide6.QtCore import QObject, QPoint, QSize, Qt, QTimer, Signal
 from PySide6.QtGui import QCloseEvent, QIcon
 from PySide6.QtWidgets import (
+    QCheckBox,
     QFileDialog,
     QFrame,
     QHBoxLayout,
@@ -104,7 +105,7 @@ class _PlayerBridge(QObject):
 class MouseRecorderApp(QMainWindow):
     APP_NAME = "MouseRecorder"
 
-    def __init__(self) -> None:
+    def __init__(self, game_mode: bool = False) -> None:
         super().__init__()
         self.setObjectName("root")
         self.setWindowTitle(self.APP_NAME)
@@ -112,13 +113,14 @@ class MouseRecorderApp(QMainWindow):
         self._setup_icon()
 
         # State
-        self._recorder = MouseRecorder(on_event=None)  # we update via QTimer instead
-        self._player = MousePlayer()
+        self._game_mode = game_mode
+        self._recorder = MouseRecorder(on_event=None, game_mode=game_mode)
+        self._player = MousePlayer(game_mode=game_mode)
         self._hotkey = HotkeyManager(
             on_play=self._handle_hotkey_play, on_cancel=self._handle_hotkey_cancel
         )
-        self._current_recording: Optional[Recording] = None  # last captured
-        self._loaded_recording: Optional[Recording] = None  # currently loaded for play
+        self._current_recording: Optional[Recording] = None
+        self._loaded_recording: Optional[Recording] = None
         self._updating_list = False
 
         # Bridge for thread-safe worker -> UI communication
@@ -173,6 +175,13 @@ class MouseRecorderApp(QMainWindow):
         status_row.setContentsMargins(0, 0, 0, 0)
         self._status_pill = StatusPill()
         status_row.addWidget(self._status_pill)
+        status_row.addSpacing(10)
+        self._game_check = QCheckBox("Game mode")
+        self._game_check.setObjectName("gameCheck")
+        self._game_check.setChecked(self._game_mode)
+        self._game_check.setCursor(Qt.PointingHandCursor)
+        self._game_check.toggled.connect(self._on_game_mode_toggle)
+        status_row.addWidget(self._game_check)
         status_row.addStretch(1)
         outer.addLayout(status_row)
 
@@ -428,6 +437,11 @@ class MouseRecorderApp(QMainWindow):
     def _do_hotkey_cancel(self) -> None:
         if self._player.is_playing:
             self._player.cancel()
+
+    def _on_game_mode_toggle(self, enabled: bool) -> None:
+        self._game_mode = enabled
+        self._recorder.set_game_mode(enabled)
+        self._player.set_game_mode(enabled)
 
     # --- close ---
     def closeEvent(self, ev: QCloseEvent) -> None:  # noqa: N802

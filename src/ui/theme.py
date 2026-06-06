@@ -102,6 +102,36 @@ QFrame#titleBar QPushButton#titleBtn[class="close"]:hover {{
     color: white;
 }}
 
+/* --- Game mode checkbox --- */
+QCheckBox#gameCheck {{
+    color: {TEXT_MUTED};
+    font-size: 12px;
+    font-weight: 500;
+    spacing: 6px;
+}}
+QCheckBox#gameCheck:hover {{
+    color: {TEXT_SECONDARY};
+}}
+QCheckBox#gameCheck::indicator {{
+    width: 16px;
+    height: 16px;
+    border: 1px solid {BORDER};
+    border-radius: 4px;
+    background: {BG_PANEL};
+}}
+QCheckBox#gameCheck::indicator:hover {{
+    border-color: {BORDER_HOVER};
+    background: {BG_ELEVATED};
+}}
+QCheckBox#gameCheck::indicator:checked {{
+    background: {ACCENT};
+    border-color: {ACCENT};
+}}
+QCheckBox#gameCheck::indicator:checked:hover {{
+    background: {ACCENT_HOVER};
+    border-color: {ACCENT_HOVER};
+}}
+
 /* --- Panel card --- */
 QFrame#panelCard {{
     background: {BG_PANEL};

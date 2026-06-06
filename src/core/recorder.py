@@ -33,9 +33,11 @@ class MouseRecorder:
         self,
         on_event: Optional[Callable[[dict], None]] = None,
         move_throttle_ms: int = _MOVE_THROTTLE_MS,
+        game_mode: bool = False,
     ) -> None:
         self._on_event = on_event
         self._move_throttle_ms = move_throttle_ms
+        self._game_mode = game_mode
         self._events: list[dict] = []
         self._lock = threading.Lock()
         self._listener: mouse.Listener | None = None
@@ -80,10 +82,6 @@ class MouseRecorder:
             events = list(self._events)
         self._running = False
         if self._listener is not None:
-            # pynput.Listener.stop() joins the thread internally — avoid
-            # blocking the caller by stopping in a short-lived daemon.
-            # Capture listener locally so a concurrent start() can't
-            # redirect the stop() to the new listener.
             _old = self._listener
             self._listener = None
 
@@ -100,6 +98,9 @@ class MouseRecorder:
         with self._lock:
             return list(self._events)
 
+    def set_game_mode(self, enabled: bool) -> None:
+        self._game_mode = enabled
+
     # --- internal callbacks ---
     def _now_ms(self) -> int:
         return int((time.perf_counter() - self._start_time) * 1000)
@@ -115,7 +116,6 @@ class MouseRecorder:
 
     def _on_move(self, x: int, y: int) -> None:
         now = self._now_ms()
-        # throttle: skip if too soon AND same coords
         if (
             now - self._last_move_ms < self._move_throttle_ms
             and x == self._last_x
