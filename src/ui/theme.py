@@ -132,6 +132,22 @@ QCheckBox#gameCheck::indicator:checked:hover {{
     border-color: {ACCENT_HOVER};
 }}
 
+/* --- Notification indicator --- */
+QLabel#notifPill {{
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    font-weight: 500;
+    padding: 0 4px;
+}}
+QLabel#notifPill[active="true"] {{
+    color: {PLAY};
+}}
+QLabel#notifText {{
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    padding: 0 4px;
+}}
+
 /* --- Panel card --- */
 QFrame#panelCard {{
     background: {BG_PANEL};

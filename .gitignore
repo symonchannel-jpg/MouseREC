@@ -40,3 +40,6 @@ recordings/*
 # Env files
 .env
 .env.local
+
+# App log
+last_run.log*

@@ -31,3 +31,8 @@ def recordings_dir() -> Path:
     d = project_root() / "recordings"
     d.mkdir(parents=True, exist_ok=True)
     return d
+
+
+def notifications_db_path() -> Path:
+    """Path to Windows Toast notification database."""
+    return Path(os.path.expandvars(r"%LOCALAPPDATA%\Microsoft\Windows\Notifications\wpndatabase.db"))

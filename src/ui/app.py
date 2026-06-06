@@ -23,6 +23,7 @@ from PySide6.QtWidgets import (
 )
 
 from src.core.hotkey import HotkeyManager
+from src.core.notification_watcher import NotificationWatcher
 from src.core.player import MousePlayer
 from src.core.recorder import MouseRecorder
 from src.core.storage import (
@@ -99,7 +100,14 @@ class _PlayerBridge(QObject):
     progress = Signal(int, int)  # (idx, total)
     done = Signal()
     hotkey_play = Signal()
+    hotkey_record = Signal()
     hotkey_cancel = Signal()
+
+
+class _NotificationBridge(QObject):
+    """Thread-safe bridge for notification watcher → UI."""
+
+    detected = Signal(str)  # human-readable text from the toast
 
 
 class MouseRecorderApp(QMainWindow):
@@ -117,7 +125,9 @@ class MouseRecorderApp(QMainWindow):
         self._recorder = MouseRecorder(on_event=None, game_mode=game_mode)
         self._player = MousePlayer(game_mode=game_mode)
         self._hotkey = HotkeyManager(
-            on_play=self._handle_hotkey_play, on_cancel=self._handle_hotkey_cancel
+            on_play=self._handle_hotkey_play,
+            on_record=self._handle_hotkey_record,
+            on_cancel=self._handle_hotkey_cancel,
         )
         self._current_recording: Optional[Recording] = None
         self._loaded_recording: Optional[Recording] = None
@@ -128,18 +138,27 @@ class MouseRecorderApp(QMainWindow):
         self._player_bridge.progress.connect(self._on_play_progress)
         self._player_bridge.done.connect(self._on_play_done)
         self._player_bridge.hotkey_play.connect(self._on_play_click)
+        self._player_bridge.hotkey_record.connect(self._do_hotkey_record)
         self._player_bridge.hotkey_cancel.connect(self._do_hotkey_cancel)
+
+        # Notification watcher (bridge + watcher)
+        self._notif_bridge = _NotificationBridge()
+        self._notif_bridge.detected.connect(self._on_notification)
+        self._notif_watcher = NotificationWatcher()
 
         # Build UI
         self._build_ui()
         self._refresh_recordings_list()
         self._update_state("idle", "Ready")
 
+        # Start notification watcher (after UI is built)
+        self._start_notif_watching()
+
         # Start global hotkey
         if not self._hotkey.start():
-            self._status_pill.set_hotkey_label("F9 (error)")
+            self._status_pill.set_hotkey_label("F9/F10 (error)")
         else:
-            self._status_pill.set_hotkey_label("F9")
+            self._status_pill.set_hotkey_label("F9/F10")
 
     # --- window setup ---
     def _setup_window_flags(self) -> None:
@@ -182,8 +201,18 @@ class MouseRecorderApp(QMainWindow):
         self._game_check.setCursor(Qt.PointingHandCursor)
         self._game_check.toggled.connect(self._on_game_mode_toggle)
         status_row.addWidget(self._game_check)
+        status_row.addSpacing(16)
+        self._notif_pill = QLabel("Notif: ○")
+        self._notif_pill.setObjectName("notifPill")
+        status_row.addWidget(self._notif_pill)
         status_row.addStretch(1)
         outer.addLayout(status_row)
+
+        # Notification text (below status row)
+        self._notif_text = QLabel("")
+        self._notif_text.setObjectName("notifText")
+        self._notif_text.setVisible(False)
+        outer.addWidget(self._notif_text)
 
         # Card: main actions (4 big buttons in a 2x2 grid)
         actions_card = GlassCard()
@@ -239,7 +268,7 @@ class MouseRecorderApp(QMainWindow):
         outer.addWidget(list_card, 1)
 
         # Footer
-        footer = QLabel("ESC cancels playback   •   F9 replays last recording")
+        footer = QLabel("F10 = record/stop   •   F9 = replay   •   ESC = cancel")
         footer.setObjectName("muted")
         footer.setAlignment(Qt.AlignCenter)
         outer.addWidget(footer)
@@ -431,8 +460,17 @@ class MouseRecorderApp(QMainWindow):
         # queues the slot onto the bridge's thread (the UI thread).
         self._player_bridge.hotkey_play.emit()
 
+    def _handle_hotkey_record(self) -> None:
+        self._player_bridge.hotkey_record.emit()
+
     def _handle_hotkey_cancel(self) -> None:
         self._player_bridge.hotkey_cancel.emit()
+
+    def _do_hotkey_record(self) -> None:
+        if self._recorder.is_recording:
+            self._on_stop_click()
+        else:
+            self._on_record_click()
 
     def _do_hotkey_cancel(self) -> None:
         if self._player.is_playing:
@@ -443,6 +481,34 @@ class MouseRecorderApp(QMainWindow):
         self._recorder.set_game_mode(enabled)
         self._player.set_game_mode(enabled)
 
+    # --- notification watcher ---
+    def _start_notif_watching(self) -> None:
+        self._notif_pill.setText("Notif: ○")
+        self._notif_watcher.start(
+            callback=self._on_notification_from_thread,
+        )
+
+    def _on_notification_from_thread(
+        self, payload: str, text: str, app_id: str
+    ) -> None:
+        """Called from the watcher background thread — bridge to UI thread."""
+        self._notif_bridge.detected.emit(text)
+
+    def _on_notification(self, text: str) -> None:
+        """Runs on the UI thread. Turns indicator green and shows text."""
+        self._notif_pill.setProperty("active", "true")
+        self._notif_pill.style().unpolish(self._notif_pill)
+        self._notif_pill.style().polish(self._notif_pill)
+        self._notif_text.setText(f"📩 {text}")
+        self._notif_text.setVisible(True)
+        QTimer.singleShot(30000, self._reset_notif_indicator)
+
+    def _reset_notif_indicator(self) -> None:
+        self._notif_pill.setProperty("active", "false")
+        self._notif_pill.style().unpolish(self._notif_pill)
+        self._notif_pill.style().polish(self._notif_pill)
+        self._notif_text.setVisible(False)
+
     # --- close ---
     def closeEvent(self, ev: QCloseEvent) -> None:  # noqa: N802
         try:
@@ -450,6 +516,7 @@ class MouseRecorderApp(QMainWindow):
                 self._recorder.stop()
             if self._player.is_playing:
                 self._player.cancel()
+            self._notif_watcher.stop()
             self._hotkey.stop()
         finally:
             super().closeEvent(ev)

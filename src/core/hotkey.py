@@ -1,6 +1,6 @@
 """Global hotkey listener.
 
-Default: F9 = play last recording, ESC = cancel playback.
+Default: F9 = play last recording, F10 = record/stop, ESC = cancel playback.
 """
 from __future__ import annotations
 
@@ -14,14 +14,17 @@ class HotkeyManager:
     def __init__(
         self,
         on_play: Optional[Callable[[], None]] = None,
+        on_record: Optional[Callable[[], None]] = None,
         on_cancel: Optional[Callable[[], None]] = None,
     ) -> None:
         self._on_play = on_play
+        self._on_record = on_record
         self._on_cancel = on_cancel
         self._listener: keyboard.Listener | None = None
         self._pressed: set[keyboard.Key | keyboard.KeyCode] = set()
         self._lock = threading.Lock()
         self._play_key = keyboard.Key.f9
+        self._record_key = keyboard.Key.f10
         self._cancel_key = keyboard.Key.esc
 
     @property
@@ -31,11 +34,14 @@ class HotkeyManager:
     def set_callbacks(
         self,
         on_play: Optional[Callable[[], None]] = None,
+        on_record: Optional[Callable[[], None]] = None,
         on_cancel: Optional[Callable[[], None]] = None,
     ) -> None:
         with self._lock:
             if on_play is not None:
                 self._on_play = on_play
+            if on_record is not None:
+                self._on_record = on_record
             if on_cancel is not None:
                 self._on_cancel = on_cancel
 
@@ -66,10 +72,16 @@ class HotkeyManager:
     def _on_press(self, key) -> None:
         with self._lock:
             self._pressed.add(key)
-            cb = self._on_play
-        if key == self._play_key and cb is not None:
+            play_cb = self._on_play
+            record_cb = self._on_record
+        if key == self._play_key and play_cb is not None:
             try:
-                cb()
+                play_cb()
+            except Exception:
+                pass
+        if key == self._record_key and record_cb is not None:
+            try:
+                record_cb()
             except Exception:
                 pass
 
