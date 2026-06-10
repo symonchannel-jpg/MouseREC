@@ -19,6 +19,7 @@ echo   One-click installer
 echo ===========================================
 echo.
 
+REM --- Check git ---
 echo [1/3] Checking for Git...
 where git >nul 2>&1
 if errorlevel 1 (
@@ -30,6 +31,13 @@ if errorlevel 1 (
 echo [OK] Git found
 echo.
 
+REM --- Is this already the repo? ---
+if exist "main.py" if exist ".git" (
+    echo [INFO] Already inside the repository. Skipping clone.
+    goto :setup
+)
+
+REM --- Clone repo ---
 echo [2/3] Setting up repository...
 if exist "%FOLDER%" (
     echo [INFO] Folder exists, updating...
@@ -47,6 +55,7 @@ if exist "%FOLDER%" (
 echo [OK] Repository ready
 echo.
 
+:setup
+if exist "%FOLDER%" cd "%FOLDER%"
 echo [3/3] Launching setup...
-cd "%FOLDER%"
 call ejecutar.bat
