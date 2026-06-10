@@ -83,7 +83,9 @@ Automate repetitive mouse actions without complex software. Ideal for:
    - Subsequent runs launch the app directly.
    - If something fails, the `.bat` shows an on-screen message and stays paused so you can read the error.
 
-3. **Done.** The MouseRecorder window opens.
+3. **Or download fresh:** double-click `instalar.bat` — clones the repo and runs the setup.
+
+4. **Done.** The MouseRecorder window opens.
 
 > To generate a portable `.exe`: double-click `compilar.bat` → result at `dist\MouseRecorder.exe`.
 
