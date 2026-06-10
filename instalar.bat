@@ -1,11 +1,12 @@
 @echo off
-chcp 65001 >nul
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
 
 set "REPO_URL=https://github.com/symonchannel-jpg/MouseREC.git"
 set "FOLDER=MouseRecorder"
 
+REM --- Banner (UTF-8 codepage for box-drawing chars) ---
+chcp 65001 >nul
 echo.
 echo ███╗   ███╗ ██████╗ ██╗   ██╗███████╗███████╗    ██████╗ ███████╗ ██████╗
 echo ████╗ ████║██╔═══██╗██║   ██║██╔════╝██╔════╝    ██╔══██╗██╔════╝██╔════╝
@@ -15,6 +16,7 @@ echo ██║ ╚═╝ ██║╚██████╔╝╚█████�
 echo ╚═╝     ╚═╝ ╚═════╝  ╚═════╝ ╚══════╝╚══════╝    ╚═╝  ╚═╝╚══════╝ ╚═════╝
 echo                         by Simon
 echo.
+chcp 437 >nul
 echo ===========================================
 echo   One-click installer
 echo ===========================================
