@@ -1,38 +1,33 @@
-"""Solid dark theme — palette, QSS, and shared colors.
+"""Monochromatic dark theme — high contrast, near-black, no color noise."""
+from __future__ import annotations
 
-No glass, no Mica, no translucency. Just solid dark surfaces with
-high-contrast text and restrained accent colors.
-"""
+BG_BASE = "#050505"
+BG_PANEL = "#0f0f0f"
+BG_ELEVATED = "#1a1a1a"
+BG_INSET = "#252525"
 
-# --- Palette (GitHub-dark inspired, professional, not oversaturated) ---
-BG_BASE = "#0d1117"         # main background
-BG_PANEL = "#161b22"        # cards, panels
-BG_ELEVATED = "#1c2128"     # hover / active surfaces
-BG_INSET = "#21262d"        # inputs, list items
+BORDER = "#2a2a2a"
+BORDER_HOVER = "#444444"
 
-BORDER = "#30363d"          # subtle borders
-BORDER_HOVER = "#484f58"    # brighter border on hover
+TEXT_PRIMARY = "#f5f5f5"
+TEXT_SECONDARY = "#aaaaaa"
+TEXT_MUTED = "#777777"
 
-TEXT_PRIMARY = "#e6edf3"    # main text (≥10:1 contrast)
-TEXT_SECONDARY = "#8b949e"  # secondary text (≥5:1)
-TEXT_MUTED = "#7d8590"      # muted text (≥4.5:1)
+ACCENT = "#d4d4d4"
+ACCENT_HOVER = "#e8e8e8"
+ACCENT_PRESSED = "#999999"
 
-ACCENT = "#58a6ff"          # blue accent
-ACCENT_HOVER = "#79c0ff"
-ACCENT_PRESSED = "#1f6feb"
+RECORD = "#cc3b3b"
+RECORD_HOVER = "#e05555"
+RECORD_ACTIVE = "#992222"
 
-RECORD = "#da3633"          # red (restrained)
-RECORD_HOVER = "#f85149"
-RECORD_ACTIVE = "#b62324"
+PLAY = "#3bb65b"
+PLAY_HOVER = "#4fc970"
+PLAY_ACTIVE = "#268a40"
 
-PLAY = "#3fb950"            # green (restrained)
-PLAY_HOVER = "#56d364"
-PLAY_ACTIVE = "#2ea043"
+WARN = "#b8a030"
+WARN_HOVER = "#cbb34a"
 
-WARN = "#d29922"            # amber
-WARN_HOVER = "#e3b341"
-
-# --- QSS ---
 QSS = f"""
 * {{
     font-family: "Segoe UI Variable", "Segoe UI", "Inter", "Helvetica Neue", Arial, sans-serif;
@@ -102,24 +97,24 @@ QFrame#titleBar QPushButton#titleBtn[class="close"]:hover {{
     color: white;
 }}
 
-/* --- Game mode checkbox --- */
-QCheckBox#gameCheck {{
+/* --- Checkboxes --- */
+QCheckBox#gameCheck, QCheckBox#autoPlayCheck {{
     color: {TEXT_MUTED};
     font-size: 12px;
     font-weight: 500;
     spacing: 6px;
 }}
-QCheckBox#gameCheck:hover {{
+QCheckBox#gameCheck:hover, QCheckBox#autoPlayCheck:hover {{
     color: {TEXT_SECONDARY};
 }}
-QCheckBox#gameCheck::indicator {{
+QCheckBox#gameCheck::indicator, QCheckBox#autoPlayCheck::indicator {{
     width: 16px;
     height: 16px;
     border: 1px solid {BORDER};
     border-radius: 4px;
     background: {BG_PANEL};
 }}
-QCheckBox#gameCheck::indicator:hover {{
+QCheckBox#gameCheck::indicator:hover, QCheckBox#autoPlayCheck::indicator:hover {{
     border-color: {BORDER_HOVER};
     background: {BG_ELEVATED};
 }}
@@ -131,6 +126,14 @@ QCheckBox#gameCheck::indicator:checked:hover {{
     background: {ACCENT_HOVER};
     border-color: {ACCENT_HOVER};
 }}
+QCheckBox#autoPlayCheck::indicator:checked {{
+    background: {PLAY};
+    border-color: {PLAY};
+}}
+QCheckBox#autoPlayCheck::indicator:checked:hover {{
+    background: {PLAY_HOVER};
+    border-color: {PLAY_HOVER};
+}}
 
 /* --- Notification indicator --- */
 QLabel#notifPill {{
@@ -140,7 +143,7 @@ QLabel#notifPill {{
     padding: 0 4px;
 }}
 QLabel#notifPill[active="true"] {{
-    color: {PLAY};
+    color: {TEXT_PRIMARY};
 }}
 QLabel#notifText {{
     color: {TEXT_MUTED};
@@ -183,11 +186,11 @@ QPushButton#primary:disabled {{
 /* record variant */
 QPushButton#primary[role="record"] {{
     color: {RECORD};
-    border-color: rgba(218, 54, 51, 0.35);
+    border-color: rgba(204, 59, 59, 0.35);
 }}
 QPushButton#primary[role="record"]:hover {{
-    background: rgba(218, 54, 51, 0.12);
-    border-color: rgba(218, 54, 51, 0.55);
+    background: rgba(204, 59, 59, 0.12);
+    border-color: rgba(204, 59, 59, 0.55);
 }}
 QPushButton#primary[role="record"][active="true"] {{
     background: {RECORD_ACTIVE};
@@ -198,11 +201,11 @@ QPushButton#primary[role="record"][active="true"] {{
 /* play variant */
 QPushButton#primary[role="play"] {{
     color: {PLAY};
-    border-color: rgba(63, 185, 80, 0.35);
+    border-color: rgba(59, 182, 91, 0.35);
 }}
 QPushButton#primary[role="play"]:hover {{
-    background: rgba(63, 185, 80, 0.12);
-    border-color: rgba(63, 185, 80, 0.55);
+    background: rgba(59, 182, 91, 0.12);
+    border-color: rgba(59, 182, 91, 0.55);
 }}
 QPushButton#primary[role="play"][active="true"] {{
     background: {PLAY_ACTIVE};
@@ -213,21 +216,21 @@ QPushButton#primary[role="play"][active="true"] {{
 /* stop variant */
 QPushButton#primary[role="stop"] {{
     color: {WARN};
-    border-color: rgba(210, 153, 34, 0.35);
+    border-color: rgba(184, 160, 48, 0.35);
 }}
 QPushButton#primary[role="stop"]:hover {{
-    background: rgba(210, 153, 34, 0.12);
-    border-color: rgba(210, 153, 34, 0.55);
+    background: rgba(184, 160, 48, 0.12);
+    border-color: rgba(184, 160, 48, 0.55);
 }}
 
 /* accent (Save / Load) */
 QPushButton#primary[role="accent"] {{
     color: {ACCENT};
-    border-color: rgba(88, 166, 255, 0.35);
+    border-color: rgba(212, 212, 212, 0.35);
 }}
 QPushButton#primary[role="accent"]:hover {{
-    background: rgba(88, 166, 255, 0.12);
-    border-color: rgba(88, 166, 255, 0.55);
+    background: rgba(212, 212, 212, 0.12);
+    border-color: rgba(212, 212, 212, 0.55);
 }}
 
 /* --- Status pill --- */
@@ -238,12 +241,12 @@ QFrame#statusPill {{
     padding: 6px 12px;
 }}
 QFrame#statusPill[state="recording"] {{
-    background: rgba(218, 54, 51, 0.12);
-    border-color: rgba(218, 54, 51, 0.45);
+    background: rgba(204, 59, 59, 0.12);
+    border-color: rgba(204, 59, 59, 0.45);
 }}
 QFrame#statusPill[state="playing"] {{
-    background: rgba(63, 185, 80, 0.12);
-    border-color: rgba(63, 185, 80, 0.45);
+    background: rgba(59, 182, 91, 0.12);
+    border-color: rgba(59, 182, 91, 0.45);
 }}
 
 /* --- Recordings list --- */
@@ -265,7 +268,7 @@ QListWidget#recordingsList::item:hover {{
     background: {BG_ELEVATED};
 }}
 QListWidget#recordingsList::item:selected {{
-    background: rgba(88, 166, 255, 0.18);
+    background: rgba(212, 212, 212, 0.15);
     color: {TEXT_PRIMARY};
 }}
 
@@ -276,7 +279,7 @@ QLineEdit {{
     border: 1px solid {BORDER};
     border-radius: 8px;
     padding: 6px 10px;
-    selection-background-color: rgba(88, 166, 255, 0.35);
+    selection-background-color: rgba(212, 212, 212, 0.3);
 }}
 QLineEdit:focus {{
     border-color: {ACCENT};

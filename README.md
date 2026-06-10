@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.1.10--alpha-blue" alt="Version v0.1.10-alpha"/>
+  <img src="https://img.shields.io/badge/version-v0.1.11--alpha-blue" alt="Version v0.1.11-alpha"/>
   <img src="https://img.shields.io/badge/Windows%2011-0078D4?logo=windows11&logoColor=white" alt="Windows 11"/>
   <img src="https://img.shields.io/badge/Python%203.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+"/>
   <img src="https://img.shields.io/badge/PySide6-41CD52?logo=qt&logoColor=white" alt="PySide6"/>
@@ -40,16 +40,18 @@
 
 ## ✨ Features
 
-| Feature              | Description |
-| -------------------- | ----------- |
-| 🔴 **Record Mouse**  | Captures mouse movement, clicks, and scroll in real-time |
-| ⏹️ **Stop**          | Ends the current recording |
-| ▶️ **Playback**      | Replays the last recording with exact timing |
-| 💾 **Save**          | Exports the recording as a reusable `.mrcd` file |
-| 📂 **Load**          | Imports a `.mrcd` recording from disk |
-| ⌨️ **Global Hotkey** | F9 = replay last recording from any app |
-| 🎮 **Game Mode**      | Toggle for DirectInput games — sends clicks without injection flag |
-| 🎨 **Dark modern UI**| Solid dark design with desaturated palette and high contrast |
+| Feature                    | Description |
+| -------------------------- | ----------- |
+| 🔴 **Record Mouse**        | Captures mouse movement, clicks, and scroll in real-time |
+| ⏹️ **Stop**                | Ends the current recording |
+| ▶️ **Playback**            | Replays the last recording with exact timing |
+| 💾 **Save**                | Exports the recording as a reusable `.mrcd` file |
+| 📂 **Load**                | Imports a `.mrcd` recording from disk |
+| ⌨️ **Global Hotkeys**      | F9 = replay, F10 = record/stop, ESC = cancel |
+| 🎮 **Game Mode**           | Toggle for DirectInput games — sends clicks without injection flag |
+| 🔔 **Toast Watcher**       | Detects Windows notifications and auto-plays recording on death |
+| ✏️ **Rename Recordings**   | Double-click any recording in the list to rename it |
+| 🎨 **Monochrome dark UI**  | Near-black backgrounds with high-contrast text |
 
 ---
 
@@ -96,8 +98,11 @@ Automate repetitive mouse actions without complex software. Ideal for:
 | Replay last recording      | Click **▶️ Play** |
 | Save to disk               | Click **💾 Save** → type a name → Enter |
 | Load from disk             | Click **📂 Load** → choose a `.mrcd` |
+| Record/Stop with keyboard  | Press **F10** (toggles record/stop) |
 | Playback with keyboard     | Press **F9** anytime |
 | Cancel playback            | Press **ESC** |
+| Rename a recording         | **Double-click** its name in the list |
+| Auto-play on death         | Enable **Auto** checkbox — replays recording when game death notification is detected |
 | Playback in games          | Check **Game mode** before playing — clicks bypass DirectInput detection |
 
 > **For games (Mu Online, etc.):** Right-click `ejecutar.bat` → **Run as administrator**. Games often run elevated and Windows blocks input hooks from non-admin apps. Check **Game mode** to ensure clicks are injected without the "virtual input" flag that games detect.
@@ -206,6 +211,14 @@ Files are stored in the `recordings\` folder next to the executable.
 ---
 
 ## 📝 Changelog
+
+### v0.1.11 — Toast notification watcher + F10 hotkey + auto-play (2026-06-09)
+- **Add:** `NotificationWatcher` — polls `wpndatabase.db` for new Windows Toast notifications. Detects all app notifications in real-time.
+- **Add:** **Auto** checkbox — when enabled, auto-plays the last recording on detecting death notification (keywords: died/death/killed/muerto/moriste).
+- **Add:** **F10** global hotkey — toggles record/stop from any app.
+- **Add:** **Rename** — double-click any recording in the list to rename it (updates file name + internal metadata).
+- **Redesign:** Monochrome dark theme — near-black `#050505` backgrounds, pure white `#f5f5f5` text, neutral gray accents, minimal color noise.
+- **Refactor:** `NotificationWatcher` watches all apps (no hardcoded AppId). Callback includes `app_id` for future filtering.
 
 ### v0.1.10 — Game mode + DirectInput click injection (2026-06-06)
 - **Add:** "Game mode" toggle in UI — enables two behaviors for game compatibility:

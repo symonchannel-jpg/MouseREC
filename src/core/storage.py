@@ -143,6 +143,22 @@ def load_recording(path: Path) -> Recording:
     return Recording.from_dict(validated)
 
 
+def rename_recording(path: Path, new_name: str) -> Path:
+    """Rename a .mrcd file on disk and update its internal name. Returns the new path."""
+    new_path = recording_path(new_name)
+    if new_path.exists():
+        raise FileExistsError(f"{new_path.name} already exists")
+    # Update name inside the JSON
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    data["name"] = new_name.strip()[:80]
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    # Rename the file
+    path.rename(new_path)
+    return new_path
+
+
 def list_recordings() -> list[Path]:
     """Return available .mrcd files in the recordings directory, sorted by mtime desc."""
     d = recordings_dir()

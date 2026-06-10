@@ -30,6 +30,7 @@ from src.core.storage import (
     Recording,
     list_recordings,
     load_recording,
+    rename_recording,
     save_recording,
 )
 from src.ui.theme import QSS
@@ -107,7 +108,7 @@ class _PlayerBridge(QObject):
 class _NotificationBridge(QObject):
     """Thread-safe bridge for notification watcher → UI."""
 
-    detected = Signal(str)  # human-readable text from the toast
+    detected = Signal(str, str)  # (human_text, app_id)
 
 
 class MouseRecorderApp(QMainWindow):
@@ -122,6 +123,7 @@ class MouseRecorderApp(QMainWindow):
 
         # State
         self._game_mode = game_mode
+        self._auto_play_enabled = True
         self._recorder = MouseRecorder(on_event=None, game_mode=game_mode)
         self._player = MousePlayer(game_mode=game_mode)
         self._hotkey = HotkeyManager(
@@ -201,6 +203,13 @@ class MouseRecorderApp(QMainWindow):
         self._game_check.setCursor(Qt.PointingHandCursor)
         self._game_check.toggled.connect(self._on_game_mode_toggle)
         status_row.addWidget(self._game_check)
+        status_row.addSpacing(8)
+        self._auto_play_check = QCheckBox("Auto")
+        self._auto_play_check.setObjectName("autoPlayCheck")
+        self._auto_play_check.setChecked(self._auto_play_enabled)
+        self._auto_play_check.setCursor(Qt.PointingHandCursor)
+        self._auto_play_check.toggled.connect(self._on_auto_play_toggle)
+        status_row.addWidget(self._auto_play_check)
         status_row.addSpacing(16)
         self._notif_pill = QLabel("Notif: ○")
         self._notif_pill.setObjectName("notifPill")
@@ -430,8 +439,22 @@ class MouseRecorderApp(QMainWindow):
 
     def _on_list_activate(self, item: QListWidgetItem) -> None:
         path = item.data(Qt.UserRole)
-        if path:
-            self._load_from_path(Path(path))
+        if not path:
+            return
+        old_name = item.text()
+        new_name, ok = QInputDialog.getText(
+            self,
+            "Rename Recording",
+            "New name:",
+            text=old_name,
+        )
+        if not ok or not new_name.strip() or new_name.strip() == old_name:
+            return
+        try:
+            rename_recording(Path(path), new_name.strip())
+        except Exception as exc:
+            QMessageBox.critical(self, "Rename error", str(exc))
+        self._refresh_recordings_list()
 
     def _load_from_path(self, path: Path) -> None:
         try:
@@ -481,6 +504,9 @@ class MouseRecorderApp(QMainWindow):
         self._recorder.set_game_mode(enabled)
         self._player.set_game_mode(enabled)
 
+    def _on_auto_play_toggle(self, enabled: bool) -> None:
+        self._auto_play_enabled = enabled
+
     # --- notification watcher ---
     def _start_notif_watching(self) -> None:
         self._notif_pill.setText("Notif: ○")
@@ -492,16 +518,30 @@ class MouseRecorderApp(QMainWindow):
         self, payload: str, text: str, app_id: str
     ) -> None:
         """Called from the watcher background thread — bridge to UI thread."""
-        self._notif_bridge.detected.emit(text)
+        self._notif_bridge.detected.emit(text, app_id)
 
-    def _on_notification(self, text: str) -> None:
-        """Runs on the UI thread. Turns indicator green and shows text."""
+    def _on_notification(self, text: str, app_id: str) -> None:
+        """Runs on the UI thread. Turns indicator green, shows text, auto-plays."""
         self._notif_pill.setProperty("active", "true")
         self._notif_pill.style().unpolish(self._notif_pill)
         self._notif_pill.style().polish(self._notif_pill)
         self._notif_text.setText(f"📩 {text}")
         self._notif_text.setVisible(True)
         QTimer.singleShot(30000, self._reset_notif_indicator)
+
+        # Auto-play on death notification (with 5s delay)
+        if not self._auto_play_enabled:
+            return
+        if self._recorder.is_recording or self._player.is_playing:
+            return
+        keywords = ("died", "death", "killed", "muerto", "moriste", "has muerto")
+        if any(k in text.lower() for k in keywords):
+            if hasattr(self, "_auto_play_timer") and self._auto_play_timer is not None:
+                self._auto_play_timer.stop()
+            self._auto_play_timer = QTimer(self)
+            self._auto_play_timer.setSingleShot(True)
+            self._auto_play_timer.timeout.connect(self._on_play_click)
+            self._auto_play_timer.start(5000)
 
     def _reset_notif_indicator(self) -> None:
         self._notif_pill.setProperty("active", "false")
